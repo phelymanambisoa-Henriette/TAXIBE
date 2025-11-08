@@ -1,0 +1,39 @@
+.login-container, .register-container, .profil-container {
+  background: var(--color-light);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+  max-width: 400px;
+  margin: 30px auto;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, button, select, textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.error-message {
+  color: red;
+}
+
+.success-message {
+  color: green;
+}

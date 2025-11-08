@@ -1,0 +1,66 @@
+/* Reset basique */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #8bc0aa;
+}
+
+/* Cards */
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: var(--primary-color);
+  color: #fff;
+  min-width: 250px;
+  height: 100vh;
+  padding: 1rem;
+}
+
+/* Layout */
+.main-content {
+  padding: 1rem;
+}
+
+/* Themes (variables dans variables.css) */
+:root {
+  --primary-color: #aad3c2;
+  --secondary-color: #f8f9fa;
+  --text-dark: #2c3e50;
+  --bg-light: #f8f9fa;
+}

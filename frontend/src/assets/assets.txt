@@ -1,0 +1,14 @@
+src/assets/
+├── images/
+│   ├── logo.png
+│   ├── bus.png
+│   └── placeholder.png
+├── icons/
+│   ├── location.svg
+│   ├── bus.svg
+│   ├── comment.svg
+│   └── user.svg
+└── fonts/
+    ├── OpenSans-Regular.ttf
+    ├── OpenSans-Bold.ttf
+    └── Roboto-Regular.ttf

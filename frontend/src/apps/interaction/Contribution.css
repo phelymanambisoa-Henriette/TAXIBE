@@ -1,0 +1,27 @@
+.contribution-container {
+  background: var(--color-background);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contribution-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contribution-container input,
+.contribution-container select,
+.contribution-container textarea {
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  padding: 8px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}

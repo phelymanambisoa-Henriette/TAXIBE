@@ -1,0 +1,23 @@
+@import './styles/variables.css';
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: background 0.3s, color 0.3s;
+}
+
+[data-theme='dark'] {
+  background-color: var(--dark-color-background);
+  color: var(--dark-color-text);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}

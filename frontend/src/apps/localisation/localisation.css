@@ -1,0 +1,39 @@
+.localisation-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+}
+
+.localisation-content {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.ville-list {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  padding-right: 10px;
+}
+
+.ville-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ville-list li {
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.ville-list li:hover {
+  background-color: var(--color-light);
+}
+
+.map-message {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}
