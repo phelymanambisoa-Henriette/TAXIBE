@@ -1,16 +1,19 @@
 import React from 'react';
-import Sidebar from './Sidebar';
+import { Outlet } from 'react-router-dom';
 import Header from './Header';
-import './layout.css';
+import Sidebar from './Sidebar';
+import './layout.css'; // CSS important ci-dessous
 
-const Layout = ({ children }) => {
+const Layout = () => {
   return (
-    <div className="layout">
+    <div className="app-layout">
       <Sidebar />
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header />
-        <div className="page-content">{children}</div>
-      </main>
+        <main className="page-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

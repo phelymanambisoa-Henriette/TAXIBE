@@ -1,7 +1,146 @@
 .map-container {
-  background-color: #e9ecef;
-  border-radius: var(--radius);
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 20px;
-  margin: 10px 0;
+}
+
+.map-view-header {
+  margin-bottom: 24px;
+}
+
+.map-view-header h1 {
+  color: var(--color-dark);
+  font-size: 28px;
+  margin: 0;
+}
+
+.position-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.position-info p {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.btn-refresh {
+  padding: 8px 16px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.btn-refresh:hover {
+  background: #8ab9a7;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: var(--color-secondary);
+  border-radius: 12px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-secondary);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  margin-top: 16px;
+  color: var(--color-text);
+}
+
+.error-message {
+  background: #fee;
+  color: #c00;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
   text-align: center;
+}
+
+.no-location {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--color-secondary);
+  border-radius: 12px;
+}
+
+.no-location p {
+  color: var(--color-text);
+  margin-bottom: 20px;
+}
+
+.btn-retry {
+  padding: 10px 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.btn-retry:hover {
+  background: #8ab9a7;
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+  .map-view-header h1 {
+    color: var(--dark-color-text);
+  }
+  
+  .position-info,
+  .loading-container,
+  .no-location {
+    background: #2a2a2a;
+  }
+  
+  .position-info p,
+  .loading-container p,
+  .no-location p {
+    color: var(--dark-color-text);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .map-container {
+    padding: 10px;
+  }
+  
+  .position-info {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .btn-refresh {
+    width: 100%;
+  }
 }

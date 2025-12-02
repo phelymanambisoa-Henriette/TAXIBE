@@ -1,0 +1,183 @@
+/* src/components/map/BusMap.css */
+
+.bus-map-layout {
+  display: flex;
+  height: calc(100vh - 70px); /* Prend toute la hauteur moins le header */
+  background-color: #F2F7F6;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- SIDEBAR GAUCHE --- */
+.map-sidebar {
+  width: 300px;
+  background: white;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+  z-index: 400; /* Au-dessus de la carte */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-right: 1px solid #eee;
+}
+
+.map-sidebar-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.map-sidebar-header h3 {
+  margin: 0 0 5px 0;
+  color: #1F2937;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-stats {
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  display: flex;
+  gap: 15px;
+}
+
+/* Liste Filtres */
+.bus-filter-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 5px; /* Pour la scrollbar */
+}
+
+.bus-filter-item {
+  background: #F9FAFB;
+  border: 1px solid transparent;
+  padding: 12px 15px;
+  border-radius: 12px;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #4B5563;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.bus-filter-item:hover {
+  background: #fff;
+  border-color: #00D2A0;
+  box-shadow: 0 2px 8px rgba(0, 210, 160, 0.1);
+}
+
+.bus-filter-item.active {
+  background: #00D2A0;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 210, 160, 0.3);
+}
+
+.dot-indicator {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #D1D5DB;
+}
+.bus-filter-item.active .dot-indicator { background: white; }
+.dot-indicator.all { background: #1F2937; }
+
+/* Bouton Localisation */
+.btn-locate-me {
+  margin-top: 15px;
+  background: #1F2937;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 50px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.btn-locate-me:hover { transform: translateY(-2px); }
+
+/* Carte Info Itinéraire */
+.active-route-card {
+  background: #E0FBF4;
+  border: 1px solid #00D2A0;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.route-header {
+  display: flex; justify-content: space-between; align-items: center;
+  color: #047857; font-size: 0.9rem; margin-bottom: 5px;
+}
+.route-header button {
+  background: none; border: none; color: #047857; cursor: pointer;
+}
+.badge-bus {
+  background: #00D2A0; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;
+}
+
+/* --- CARTE --- */
+.map-wrapper {
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+
+/* Custom Markers */
+.user-location-marker .pulse {
+  width: 15px; height: 15px;
+  background: #3B82F6;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.custom-stop-icon .stop-dot {
+  width: 10px; height: 10px;
+  background: #fff;
+  border: 2px solid #6B7280;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.leaflet-marker-icon:hover .stop-dot {
+  transform: scale(1.5);
+  border-color: #00D2A0;
+  background: #00D2A0;
+}
+
+.stop-pin {
+  width: 30px; height: 30px;
+  background: white;
+  border-radius: 50% 50% 0 50%;
+  transform: rotate(45deg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+.stop-pin i { transform: rotate(-45deg); font-size: 12px; }
+.stop-pin.start { color: #00D2A0; border: 2px solid #00D2A0; }
+.stop-pin.end { color: #EF4444; border: 2px solid #EF4444; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .bus-map-layout { flex-direction: column; height: calc(100vh - 60px); }
+  .map-sidebar {
+    width: 100%; height: 40%; order: 2; /* En bas sur mobile */
+    border-top: 1px solid #eee; border-right: none;
+  }
+  .map-wrapper { height: 60%; order: 1; }
+}

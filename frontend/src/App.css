@@ -36,3 +36,20 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* src/styles/global.css ou App.css */
+
+body {
+  /* ... autres styles ... */
+  background-color: var(--bg-app); /* DOIT utiliser la variable */
+  color: var(--text-primary);    /* DOIT utiliser la variable */
+  transition: background-color 0.3s, color 0.3s; /* Ajoute une transition pour le style */
+}
+
+/* Assure-toi que tous tes composants utilisent var(--bg-card) */
+
+/* Exemple de réplication du style sur le Header si besoin */
+.header {
+    background-color: var(--header-bg);
+}

@@ -21,7 +21,11 @@ class Arret(models.Model):
     nomArret = models.CharField(max_length=100)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    quartierRef = models.ForeignKey(Quartier, on_delete=models.CASCADE, related_name='arrets')
+    villeRef = models.ForeignKey(Ville, on_delete=models.CASCADE, null=True, blank=True)
+    quartier = models.ForeignKey(Quartier, on_delete=models.CASCADE, related_name='arrets')
 
     def __str__(self):
         return self.nomArret
+
+    class Meta:
+        db_table = 'localisation_arret'

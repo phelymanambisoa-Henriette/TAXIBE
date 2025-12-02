@@ -1,0 +1,164 @@
+/* src/pages/HelpSupport.css */
+
+.help-page {
+    background-color: var(--bg-app, #F2F7F6);
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.help-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* HEADER */
+.help-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+.help-header h1 {
+    font-size: 2.2rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+.help-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* GRILLE PRINCIPALE */
+.help-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* FAQ large, Contact étroit */
+    gap: 40px;
+}
+
+.faq-section h2, .contact-nav-section h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+}
+
+/* --- ACCORDEON (FAQ) --- */
+.accordion-wrapper {
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.accordion-item {
+    border-bottom: 1px solid var(--border-color);
+}
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 18px 25px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+    color: var(--primary-color);
+}
+
+.accordion-item.open .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+    background: var(--bg-input);
+}
+
+.accordion-item.open .accordion-content {
+    max-height: 200px; /* Taille max arbitraire pour l'animation */
+}
+
+.accordion-content p {
+    padding: 15px 25px 20px;
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* --- CARTES DE DROITE --- */
+.contact-card, .quick-links-card {
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    margin-bottom: 25px;
+}
+
+.contact-detail {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.contact-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Liens rapides */
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.quick-link:hover {
+    background: var(--primary-light, #E0FBF4);
+    color: var(--primary-hover, #00A67E);
+}
+
+.quick-link.admin {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    margin-top: 20px;
+}
+.quick-link.admin:hover {
+    background: var(--primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,164 @@
+.map-view-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.map-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.map-view-header h1 {
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.view-selector {
+  display: flex;
+  gap: 8px;
+  background: var(--color-secondary);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.view-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.view-btn:hover {
+  background: rgba(170, 211, 194, 0.2);
+}
+
+.view-btn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.location-prompt {
+  background: var(--color-secondary);
+  padding: 24px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.location-prompt p {
+  margin-bottom: 16px;
+  color: var(--color-text);
+}
+
+.location-prompt button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.location-prompt button:hover:not(:disabled) {
+  background: #8ab9a7;
+}
+
+.location-prompt button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.location-prompt .error {
+  color: #c00;
+  margin-top: 12px;
+}
+
+.map-wrapper {
+  margin-bottom: 24px;
+}
+
+.map-info-panel {
+  background: var(--color-secondary);
+  padding: 20px;
+  border-radius: var(--radius);
+}
+
+.map-info-panel h3 {
+  color: var(--color-dark);
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.map-info-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.map-info-panel li {
+  padding: 8px 0;
+  color: var(--color-text);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.map-info-panel li:last-child {
+  border-bottom: none;
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+  .map-view-header h1,
+  .map-info-panel h3 {
+    color: var(--dark-color-text);
+  }
+  
+  .view-selector {
+    background: #2a2a2a;
+  }
+  
+  .view-btn {
+    color: var(--dark-color-text);
+  }
+  
+  .location-prompt,
+  .map-info-panel {
+    background: #2a2a2a;
+  }
+  
+  .map-info-panel li {
+    color: var(--dark-color-text);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .map-view-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .view-selector {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .map-info-panel {
+    padding: 16px;
+  }
+  
+  .map-info-panel li {
+    font-size: 14px;
+  }
+}

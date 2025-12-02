@@ -1,22 +1,36 @@
+# backend/interaction/admin.py - VERSION CORRECTE
 from django.contrib import admin
-from .models import Commentaire, Contribution, HistoriqueRecherche
+from .models import Commentaire, Contribution, HistoriqueRecherche, Favori
 
-@admin.register(Commentaire)
-class CommentaireAdmin(admin.ModelAdmin):
-    list_display = ('id', 'auteurRef', 'contenu', 'dateCreation', 'statut', 'parentRef')
-    search_fields = ('contenu', 'auteurRef__nom')
-    list_filter = ('statut', 'dateCreation')
-    ordering = ('-dateCreation',)
+@admin.register(Favori)
+class FavoriAdmin(admin.ModelAdmin):
+    list_display = ['utilisateurRef', 'busRef', 'date_ajout']
+    list_filter = ['date_ajout']
+    search_fields = ['utilisateurRef__username', 'busRef__numeroBus']
+    date_hierarchy = 'date_ajout'
+    ordering = ['-date_ajout']
 
 @admin.register(Contribution)
 class ContributionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'typeContribution', 'utilisateurRef', 'statut', 'dateSoumission', 'dateValidation')
-    search_fields = ('details', 'utilisateurRef__nom')
-    list_filter = ('typeContribution', 'statut')
-    ordering = ('-dateSoumission',)
+    list_display = ['utilisateurRef', 'type', 'busRef', 'status', 'date_creation']
+    list_filter = ['type', 'status', 'date_creation']
+    search_fields = ['utilisateurRef__username', 'description']
+    date_hierarchy = 'date_creation'
+    list_editable = ['status']
+    ordering = ['-date_creation']
+
+@admin.register(Commentaire)
+class CommentaireAdmin(admin.ModelAdmin):
+    list_display = ['utilisateurRef', 'busRef', 'note', 'date_creation']
+    list_filter = ['note', 'date_creation']
+    search_fields = ['utilisateurRef__username', 'contenu', 'busRef__numeroBus']
+    date_hierarchy = 'date_creation'
+    ordering = ['-date_creation']
 
 @admin.register(HistoriqueRecherche)
 class HistoriqueRechercheAdmin(admin.ModelAdmin):
-    list_display = ('id', 'userRef', 'depart', 'arrivee', 'dateRecherche')
-    search_fields = ('userRef__nom',)
-    ordering = ('-dateRecherche',)
+    list_display = ['userRef', 'depart', 'arrivee', 'date_recherche']
+    list_filter = ['date_recherche']
+    search_fields = ['userRef__username']
+    date_hierarchy = 'date_recherche'
+    ordering = ['-date_recherche']

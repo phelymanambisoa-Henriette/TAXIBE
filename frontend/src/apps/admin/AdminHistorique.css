@@ -1,0 +1,199 @@
+/* src/apps/admin/AdminHistorique.css */
+
+.admin-history-page {
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+/* HEADER */
+.page-header {
+  margin-bottom: 25px;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  color: #1E293B;
+  margin: 0 0 5px 0;
+  font-weight: 800;
+}
+.page-header p {
+  color: #64748B;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* TOOLBAR */
+.history-toolbar {
+  background: #FFFFFF;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Champ de recherche */
+.search-field {
+  flex: 1;
+  display: flex; align-items: center; gap: 10px;
+  background-color: #F8FAFC;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  padding: 8px 12px;
+}
+
+.search-field input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.9rem;
+  width: 100%;
+  color: #334155;
+}
+
+.icon-muted { color: #94A3B8; }
+
+/* Toggle "Bus only" */
+.toggle-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #4B5563;
+  cursor: pointer;
+}
+
+.toggle-filter input {
+  display: none;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid #CBD5F5;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.toggle-filter input:checked ~ .checkmark {
+  background-color: #00D2A0;
+  border-color: #00D2A0;
+}
+
+.toggle-filter input:checked ~ .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* TABLE CARTE */
+.history-table-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+  overflow: hidden;
+}
+
+/* TABLEAU */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.history-table thead {
+  background: #F9FAFB;
+}
+
+.history-table th,
+.history-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #E5E7EB;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.history-table th {
+  font-size: 0.8rem;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.history-table tbody tr:hover {
+  background-color: #F9FAFB;
+}
+
+.query-cell {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bus Chip */
+.bus-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #E0FBF4;
+  color: #047857;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.bus-chip.neutral {
+  background: #F3F4F6;
+  color: #9CA3AF;
+}
+
+/* Ligne vide */
+.empty-row {
+  text-align: center;
+  font-style: italic;
+  color: #9CA3AF;
+}
+
+/* Footer Table */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #9CA3AF;
+}
+.table-footer .hint { font-style: italic; }
+
+/* ACCES REFUSÉ */
+.admin-denied {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748B;
+}
+.admin-denied h2 {
+  color: #EF4444;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .history-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .query-cell {
+    max-width: 180px;
+  }
+}

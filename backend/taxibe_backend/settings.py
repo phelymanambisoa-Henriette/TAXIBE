@@ -144,3 +144,27 @@ CORS_ALLOWED_ORIGINS = [
 # 🆔 Clé primaire auto
 # ------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Autorise les requêtes non-GET (POST, PATCH, PUT, DELETE)
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH', # Nécessaire pour updateProfile
+    'POST',  # Nécessaire pour créer Commentaire/Contribution
+    'PUT',
+]
+
+# Autorise les headers essentiels (Authorization pour JWT, Content-Type pour JSON/FormData)
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken', 
+    'x-requested-with',
+]

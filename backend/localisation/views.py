@@ -4,6 +4,7 @@ from .serializers import VilleSerializer, QuartierSerializer, ArretSerializer
 
 from rest_framework.permissions import AllowAny
 
+
 class VilleViewSet(viewsets.ModelViewSet):
     queryset = Ville.objects.all()
     serializer_class = VilleSerializer

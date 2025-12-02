@@ -1,52 +1,225 @@
+/* src/components/layout/Header.css */
+
+/* Header base */
 .header {
-  background-color: #282c34;
-  padding: 20px;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+  height: 70px;
+  display: flex; align-items: center;
+  padding: 0 20px;
+  font-family: 'Poppins', sans-serif;
 }
-
 .header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  width: 100%; max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
 }
 
-.header-title {
-  margin: 0;
-  font-size: 24px;
+/* Logo */
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-icon {
+  background: #00D2A0; color: white; width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  transform: rotate(-5deg); box-shadow: 0 4px 10px rgba(0, 210, 160, 0.3);
+}
+.logo-text { font-size: 1.5rem; font-weight: 800; color: #1F2937; letter-spacing: -0.5px; }
+.logo-text .highlight { color: #00D2A0; }
+
+/* Nav */
+.header-nav { display: flex; gap: 30px; }
+.nav-link {
+  text-decoration: none; color: #6B7280; font-weight: 600; font-size: 0.95rem;
+  display: flex; align-items: center; gap: 8px; transition: color 0.2s; position: relative;
+}
+.nav-link:hover, .nav-link.active { color: #00D2A0; }
+.nav-link.active::after {
+  content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px;
+  background: #00D2A0; border-radius: 3px 3px 0 0;
 }
 
-.location-section {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+/* Actions droite */
+.header-actions { display: flex; align-items: center; }
+.user-section { display: flex; align-items: center; gap: 12px; }
+
+/* Aide séparée */
+.client-help-btn {
+  background: transparent; border: none; color: #334155; font-size: 1.25rem; padding: 6px; border-radius: 6px;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.client-help-btn:hover { color: #00A67E; }
+
+/* Cloche notifications (icône pure, pas de bouton rond) */
+.client-notif-container { position: relative; }
+.client-bell-btn {
+  background: transparent; border: none; color: #334155; font-size: 1.25rem; padding: 6px; border-radius: 6px;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.client-bell-btn:hover, .client-bell-btn.active { color: #00A67E; }
+
+/* Badge + halo */
+.client-badge {
+  position: absolute; top: -6px; right: -6px; background: #EF4444; color: white;
+  font-size: 0.7rem; font-weight: 800; padding: 2px 5px; border-radius: 999px; border: 2px solid white;
+}
+.client-badge.ping::after {
+  content: ''; position: absolute; inset: -6px; border: 2px solid #EF4444; border-radius: 999px;
+  animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  80% { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+/* Sonnerie cloche si non-lus */
+.client-bell-btn.ringing svg {
+  animation: ring 1.2s ease-in-out infinite; transform-origin: 50% 0;
+}
+@keyframes ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(18deg); }
+  30% { transform: rotate(-15deg); }
+  45% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  75% { transform: rotate(5deg); }
+  100% { transform: rotate(0); }
 }
 
-.location-btn {
-  padding: 10px 20px;
-  background-color: #61dafb;
-  color: #282c34;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: background-color 0.3s;
+/* Paramètres (3 points) séparés */
+.client-settings-container { position: relative; }
+.client-ellipsis-btn {
+  background: transparent; border: none; color: #334155; font-size: 1.2rem;
+  padding: 6px; border-radius: 6px; cursor: pointer;
+}
+.client-ellipsis-btn:hover, .client-ellipsis-btn.active { color: #00A67E; }
+
+.client-settings-panel {
+  position: absolute; top: 60px; right: 0; width: 240px; background: white; border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; z-index: 1100; animation: slideDown .2s ease-out;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.settings-item {
+  width: 100%; background: white; border: none; text-align: left; padding: 10px 14px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.settings-item:hover { background: #F9FAFB; }
+
+/* Panel notifications (reprend ton style existant) */
+.notification-panel {
+  position: absolute; top: 60px; right: 0; width: 320px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.05); overflow: hidden; z-index: 1100; animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.panel-header { padding: 15px 20px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center; }
+.notification-items { max-height: 300px; overflow-y: auto; }
+.notification-card { padding: 15px 20px; border-bottom: 1px solid #F9FAFB; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; transition: background 0.2s; }
+.notification-card:hover { background: #F9FAFB; }
+.notification-card.unread { background: #F0FDF4; }
+.notification-status { width: 8px; height: 8px; background: #00D2A0; border-radius: 50%; margin-top: 6px; }
+.notification-card.read .notification-status { background: #D1D5DB; }
+.notification-info p { margin: 0 0 4px 0; font-size: 0.9rem; color: #374151; line-height: 1.4; }
+.notification-info span { font-size: 0.75rem; color: #9CA3AF; }
+.panel-footer { padding: 12px; display: flex; justify-content: space-between; border-top: 1px solid #F3F4F6; }
+.panel-footer .btn-clear { border: none; background: #F3F4F6; color: #374151; font-weight: 700; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.panel-footer a { color: #00D2A0; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+
+/* User menu (garde ton style existant) */
+.user-profile-toggle {
+  background: white; border: 1px solid #E5E7EB; padding: 4px 12px 4px 4px; border-radius: 50px;
+  display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;
+}
+.user-profile-toggle:hover, .user-profile-toggle.active { border-color: #00D2A0; box-shadow: 0 2px 8px rgba(0, 210, 160, 0.1); }
+.user-avatar { width: 32px; height: 32px; background: #00D2A0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden; }
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-name { font-weight: 600; font-size: 0.9rem; color: #374151; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toggle-arrow { font-size: 1rem; color: #9CA3AF; }
+
+.user-menu-panel { position: absolute; top: 60px; right: 0; width: 260px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); overflow: hidden; z-index: 1100; animation: slideDown .2s ease-out; padding: 8px; }
+.user-profile-summary { display: flex; align-items: center; gap: 12px; padding: 12px; }
+.user-avatar.medium { width: 45px; height: 45px; font-size: 1.2rem; }
+.user-details h4 { margin: 0; font-size: 1rem; color: #1F2937; }
+.user-details p { margin: 0; font-size: 0.8rem; color: #6B7280; }
+.menu-separator { height: 1px; background: #F3F4F6; margin: 8px 0; }
+.menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #4B5563; text-decoration: none; font-size: 0.95rem; border-radius: 8px; transition: all 0.2s; background: transparent; border: none; width: 100%; text-align: left; font-weight: 500; cursor: pointer; }
+.menu-item:hover { background: #F3F4F6; color: #1F2937; }
+.item-icon { font-size: 1.2rem; color: #9CA3AF; }
+.menu-item:hover .item-icon { color: #00D2A0; }
+.menu-item.logout { color: #EF4444; }
+.menu-item.logout:hover { background: #FEF2F2; }
+.menu-item.logout .item-icon { color: #FCA5A5; }
+.menu-item.logout:hover .item-icon { color: #EF4444; }
+
+/* Auth buttons */
+.auth-buttons { display: flex; gap: 15px; align-items: center; }
+.btn-login { text-decoration: none; color: #1F2937; font-weight: 600; padding: 8px 16px; border-radius: 50px; transition: background .2s; }
+.btn-login:hover { background: #F3F4F6; }
+.btn-register { text-decoration: none; background: #1F2937; color: white; padding: 10px 24px; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform .2s, box-shadow .2s; }
+.btn-register:hover { background: #00D2A0; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 210, 160, 0.3); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-nav { display: none; }
+  .user-name { display: none; }
+  .notification-panel, .user-menu-panel, .client-settings-panel {
+    position: fixed; top: 70px; left: 10px; right: 10px; width: auto;
+  }
 }
 
-.location-btn:hover {
-  background-color: #4fa8c5;
+/* Dans src/components/layout/Header.css (Ajoute ceci) */
+
+.header {
+  /* ... styles existants ... */
+  background-color: rgba(255, 255, 255, 0.95);
+  /* Le thème sera appliqué via la racine */
 }
 
-.location-info {
-  font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 10px 15px;
-  border-radius: 5px;
+/* Règle spécifique pour le header en mode sombre */
+html[data-theme="dark"] .header {
+  background-color: var(--header-bg); 
+  color: var(--text-primary);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
 }
 
-.location-info p {
-  margin: 5px 0;
+html[data-theme="dark"] .nav-link { color: var(--admin-text-muted); }
+html[data-theme="dark"] .nav-link:hover, 
+html[data-theme="dark"] .nav-link.active { color: var(--primary-color); }
+/* ... (Adapte tous les sélecteurs de couleur #1F2937 en var(--text-primary)) ... */
+
+/* src/components/layout/Header.css (Extrait des styles concernés) */
+
+/* ... (tous les styles de base sont OK) ... */
+
+/* Positionnement des menus */
+
+.user-menu-container, .client-settings-container {
+    position: relative; 
+    /* Ils doivent être côte à côte. La ref est importante pour JS. */
 }
+
+/* Positionnement des panels */
+.user-menu-panel, .client-settings-panel {
+    position: absolute; 
+    top: 60px; 
+    /* Le 'right: 0' est ce qui fait qu'ils se placent à droite de leur conteneur parent (le bouton) */
+    right: 0; 
+    /* ... (le reste des styles de panel) ... */
+}
+
+/* Si tu veux forcer les deux menus à ne pas se superposer parfaitement (décalage) : */
+
+/* Pour le menu profil */
+.user-menu-panel {
+    right: 0; /* Alignement sur le bord droit du bouton Profil */
+    width: 260px;
+    /* ... autres styles ... */
+}
+
+/* Pour le menu des 3 points (Settings/Help) */
+.client-settings-panel {
+    /* Décalage pour qu'il s'aligne bien sous les trois points */
+    right: -100px; /* Ajuste cette valeur si nécessaire pour qu'il s'ouvre bien à gauche des 3 points */
+    width: 240px;
+    /* ... autres styles ... */
+}
+/* ... (Le reste du CSS est fonctionnel) ... */

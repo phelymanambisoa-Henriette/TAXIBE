@@ -1,0 +1,32 @@
+.not-found {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.not-found h1 {
+  font-size: 120px;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.not-found p {
+  font-size: 24px;
+  margin: 20px 0 40px;
+  color: var(--gray-600);
+}
+
+.btn-home {
+  display: inline-block;
+  padding: 14px 32px;
+  background: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-home:hover {
+  background: #8ab9a7;
+  transform: translateY(-2px);
+}

@@ -1,28 +1,49 @@
-# utilisateur/models.py
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Utilisateur(models.Model):
-    ROLE_CHOICES = [('Admin', 'Admin'), ('User', 'User')]
+    ROLE_CHOICES = [
+        ('user', 'Utilisateur'),
+        ('admin', 'Administrateur'),
+    ]
     
-    nom = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
-    mot_de_passe = models.CharField(max_length=255)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='User')
-    reputation = models.IntegerField(default=0)
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='profile',
+        primary_key=True  # ✅ user = clé primaire
+    )
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(blank=True, null=True)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
     date_creation = models.DateTimeField(auto_now_add=True)
-    date_derniere_connexion = models.DateTimeField(auto_now=True)
+    date_derniere_connexion = models.DateTimeField(null=True, blank=True)
+    reputation = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'utilisateur_profile'
 
     def __str__(self):
-        return self.nom
+        return self.username
 
+# ========================== SIGNALS ======================================
 
-# DOIT ETRE COMBINER AVEC LE CODE DESSUS APRES
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Utilisateur.objects.get_or_create(
+            user=instance,
+            defaults={
+                'username': instance.username,
+                'email': instance.email
+            }
+        )
 
-#from django.db import models
-#from django.contrib.auth.models import AbstractUser
-
-#class User(AbstractUser):
- #   photo = models.ImageField(upload_to='profils/', null=True, blank=True)
-
-  #  def __str__(self):
-  #      return self.username
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'profile'):
+        instance.profile.save()

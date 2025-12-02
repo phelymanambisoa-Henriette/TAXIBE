@@ -1,66 +1,109 @@
-/* Reset basique */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* src/styles/global.css */
+@import './variables.css';
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--bg-light);
-  color: var(--text-dark);
-  line-height: 1.6;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif; /* Police recommandée pour ce style (import-la via Google Fonts) */
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Links */
-a {
-  text-decoration: none;
-  color: inherit;
+h1, h2, h3 {
+  color: var(--text-primary);
+  font-weight: 700; /* Titres bien gras comme sur l'image */
+  letter-spacing: -0.5px; /* Un peu serré pour faire moderne */
 }
 
-/* Buttons */
-button {
-  font-family: inherit;
-  cursor: pointer;
+/* --- BOUTONS STYLE "SHIBUX" --- */
+/* Le bouton vert vif arrondi */
+button.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
-  color: #fff;
-  transition: all 0.3s ease;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-btn); /* Bords très ronds */
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 210, 160, 0.4); /* Ombre verte lumineuse */
+  transition: var(--transition);
 }
 
-button:hover {
-  background-color: #8bc0aa;
+button.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
 
-/* Cards */
-.card {
+/* --- INPUTS MODERNES --- */
+/* Les champs de recherche avec un petit fond gris et sans bordure visible */
+input, select {
+  background-color: var(--bg-input);
+  border: 1px solid transparent;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+input:focus, select:focus {
+  outline: none;
   background-color: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 1rem 0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px var(--primary-light);
 }
 
-/* Sidebar */
-.sidebar {
-  background-color: var(--primary-color);
-  color: #fff;
-  min-width: 250px;
-  height: 100vh;
-  padding: 1rem;
+/* --- LA BARRE DE RECHERCHE FLOTTANTE --- */
+/* C'est l'élément clé de l'image (le bloc blanc avec les champs et le bouton vert) */
+.search-bar-container {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius-lg); /* Gros arrondis */
+  box-shadow: var(--shadow-card);  /* Grosse ombre douce */
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  /* Pour la superposer sur une image de fond si besoin */
+  position: relative; 
+  z-index: 10;
 }
 
-/* Layout */
-.main-content {
-  padding: 1rem;
+/* --- CARTES (Les destinations) --- */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg); /* 24px */
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid rgba(0,0,0,0.03);
 }
 
-/* Themes (variables dans variables.css) */
-:root {
-  --primary-color: #aad3c2;
-  --secondary-color: #f8f9fa;
-  --text-dark: #2c3e50;
-  --bg-light: #f8f9fa;
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-card);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-lg); /* L'image elle-même est arrondie */
+}
+
+/* src/styles/global.css ou App.css */
+
+body {
+  /* ... autres styles ... */
+  background-color: var(--bg-app); /* DOIT utiliser la variable */
+  color: var(--text-primary);    /* DOIT utiliser la variable */
+  transition: background-color 0.3s, color 0.3s; /* Ajoute une transition pour le style */
+}
+
+/* Assure-toi que tous tes composants utilisent var(--bg-card) */
+
+/* Exemple de réplication du style sur le Header si besoin */
+.header {
+    background-color: var(--header-bg);
 }

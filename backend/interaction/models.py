@@ -1,48 +1,104 @@
 from django.db import models
-from utilisateur.models import Utilisateur
+from django.contrib.auth.models import User
+from transport.models import Bus
 from localisation.models import Arret
+
+class Commentaire(models.Model):
+    """Commentaires sur les bus"""
+    utilisateurRef = models.ForeignKey(User, on_delete=models.CASCADE, related_name='commentaires')
+    busRef = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='commentaires', null=True, blank=True)
+    contenu = models.TextField(blank=True, default='')
+    note = models.IntegerField(default=5, choices=[(i, i) for i in range(1, 6)])
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date_creation']
+        verbose_name = 'Commentaire'
+        verbose_name_plural = 'Commentaires'
+    
+    def __str__(self):
+        bus_info = f"Bus {self.busRef.numeroBus}" if self.busRef else "Sans bus"
+        return f"Commentaire de {self.utilisateurRef.username} sur {bus_info}"
+
+class SignalementCommentaire(models.Model):
+    STATUS_CHOICES = [
+        ('open', 'Ouvert'),
+        ('dismissed', 'Ignoré'),
+        ('removed', 'Commentaire supprimé'),
+    ]
+
+    utilisateurRef = models.ForeignKey(User, on_delete=models.CASCADE, related_name='signalements')
+    commentaireRef = models.ForeignKey('Commentaire', on_delete=models.CASCADE, related_name='signalements')
+    reason = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='open')
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['utilisateurRef', 'commentaireRef']
+        ordering = ['-date_creation']
+        verbose_name = 'Signalement commentaire'
+        verbose_name_plural = 'Signalements commentaires'
+
+    def __str__(self):
+        return f"Signalement #{self.id} par {self.utilisateurRef.username} sur com {self.commentaireRef_id} [{self.status}]"
+
+class Favori(models.Model):
+    utilisateurRef = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favoris')
+    busRef = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='favori_par')
+    date_ajout = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['utilisateurRef', 'busRef']
+        ordering = ['-date_ajout']
+        verbose_name = 'Favori'
+        verbose_name_plural = 'Favoris'
+    
+    def __str__(self):
+        return f"{self.utilisateurRef.username} - Bus {self.busRef.numeroBus}"
 
 class Contribution(models.Model):
     TYPE_CHOICES = [
-        ('Ajout_Arret', 'Ajout Arret'),
-        ('Modification_Trajet', 'Modification Trajet'),
-        ('Ajout_Bus', 'Ajout Bus'),
-        ('Signalement_Erreur', 'Signalement Erreur'),
+        ('horaire', 'Horaire'),
+        ('tarif', 'Tarif'),
+        ('trajet', 'Trajet'),
+        ('incident', 'Incident'),
+        ('autre', 'Autre'),
     ]
-    STATUT_CHOICES = [
-        ('En attente', 'En attente'),
-        ('Validée', 'Validée'),
-        ('Rejetée', 'Rejetée'),
+    
+    STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('approved', 'Approuvé'),
+        ('rejected', 'Rejeté'),
     ]
-    typeContribution = models.CharField(max_length=30, choices=TYPE_CHOICES)
-    details = models.TextField()
-    utilisateurRef = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='En attente')
-    dateSoumission = models.DateTimeField(auto_now_add=True)
-    dateValidation = models.DateTimeField(null=True, blank=True)
-
+    
+    utilisateurRef = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contributions')
+    busRef = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='contributions', null=True, blank=True)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='autre')
+    description = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')  # ✅ CORRIGÉ ICI
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date_creation']
+        verbose_name = 'Contribution'
+        verbose_name_plural = 'Contributions'
+    
     def __str__(self):
-        return f"{self.typeContribution} - {self.utilisateurRef.nom}"
-
+        return f"{self.type} - {self.utilisateurRef.username}"
 
 class HistoriqueRecherche(models.Model):
-    userRef = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
+    """Historique des recherches d'itinéraires"""
+    userRef = models.ForeignKey(User, on_delete=models.CASCADE, related_name='historique_recherches')
     depart = models.ForeignKey(Arret, on_delete=models.CASCADE, related_name='depart_hist')
     arrivee = models.ForeignKey(Arret, on_delete=models.CASCADE, related_name='arrivee_hist')
-    dateRecherche = models.DateTimeField(auto_now_add=True)
-    resultat = models.TextField()
-
+    date_recherche = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-date_recherche']
+        verbose_name = 'Historique de recherche'
+        verbose_name_plural = 'Historiques de recherches'
+    
     def __str__(self):
-        return f"Recherche de {self.userRef.nom}"
-
-
-class Commentaire(models.Model):
-    STATUT_CHOICES = [('Visible', 'Visible'), ('Masqué', 'Masqué'), ('Supprimé', 'Supprimé')]
-    contenu = models.TextField()
-    dateCreation = models.DateTimeField(auto_now_add=True)
-    auteurRef = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
-    parentRef = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='Visible')
-
-    def __str__(self):
-        return f"Commentaire par {self.auteurRef.nom}"
+        return f"Recherche de {self.userRef.username}: {self.depart} → {self.arrivee}"

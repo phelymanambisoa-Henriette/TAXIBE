@@ -1,13 +1,32 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import UtilisateurViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.views.decorators.csrf import csrf_exempt
 
+# Correct import des vues
+from .views import (
+    MeView,
+    RegisterView,
+    UpdateProfileView,
+    ChangePasswordView,
+    ensure_profile_view,
+    UtilisateurViewSet
+)
+
+# Création du routeur pour les views RESTful
 router = DefaultRouter()
-router.register('utilisateur', UtilisateurViewSet)
+router.register(r'users', UtilisateurViewSet, basename='users')
 
+# URL patterns manuelles (non gérées par ViewSet)
 urlpatterns = [
-    path('', include(router.urls)),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('me/', MeView.as_view(), name='utilisateur-me'),
+    path('profile/update/', UpdateProfileView.as_view(), name='update-profile'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('ensure_profile/', ensure_profile_view, name='ensure-profile'),
+    path('register/', csrf_exempt(RegisterView.as_view()), name='user-register'),
+
+    # (Optionnel) Si tu exposes une vue "stats" dans ViewSet
+    path('stats/', UtilisateurViewSet.as_view({'get': 'stats'}), name='user-stats'),
 ]
+
+# Ajout automatique des routes : /users/, /users/<id>/...
+urlpatterns += router.urls

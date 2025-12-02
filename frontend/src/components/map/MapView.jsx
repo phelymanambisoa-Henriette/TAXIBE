@@ -1,21 +1,55 @@
-import React, { useContext, useEffect } from 'react';
-import { LocationContext } from '../../contexts/LocationContext';
+import React, { useEffect } from 'react';
+import { useLocation } from '../../contexts/LocationContext'; // ✅ Changé
+import BusMap from './BusMap';
 import './MapView.css';
 
 const MapView = () => {
-  const { position, getLocation } = useContext(LocationContext);
+  const { location, getCurrentLocation, loading, error } = useLocation(); // ✅ Utilisation du hook
 
-useEffect(() => {
-  getLocation();
-}, [getLocation]);
-
+  useEffect(() => {
+    if (!location) {
+      getCurrentLocation();
+    }
+  }, [location, getCurrentLocation]);
 
   return (
     <div className="map-container">
-      {position ? (
-        <p>📍 Position actuelle : {position.latitude.toFixed(4)}, {position.longitude.toFixed(4)}</p>
+      <div className="map-view-header">
+        <h1>🗺️ Carte des transports</h1>
+      </div>
+
+      {error && (
+        <div className="error-message">
+          ⚠️ Erreur : {error}
+        </div>
+      )}
+
+      {loading && !location ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Obtention de la position en cours...</p>
+        </div>
+      ) : location ? (
+        <>
+          <div className="position-info">
+            <p> Position actuelle : {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}</p>
+            <button onClick={getCurrentLocation} className="btn-refresh">
+              🔄 Actualiser
+            </button>
+          </div>
+          
+          <BusMap 
+            showAllBuses={true}
+            showStops={true}
+          />
+        </>
       ) : (
-        <p>Obtention de la position en cours...</p>
+        <div className="no-location">
+          <p>Impossible d'obtenir votre position</p>
+          <button onClick={getCurrentLocation} className="btn-retry">
+            Réessayer
+          </button>
+        </div>
       )}
     </div>
   );
