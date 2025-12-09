@@ -143,7 +143,7 @@
 }
 .quick-link:hover {
     background: var(--primary-light, #E0FBF4);
-    color: var(--primary-hover, #00A67E);
+    color: var(--primary-hover, #01c6b2);
 }
 
 .quick-link.admin {

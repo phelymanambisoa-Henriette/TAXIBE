@@ -2,7 +2,7 @@
 :root {
   --admin-sidebar-bg: #1E293B;
   --admin-sidebar-hover: #334155;
-  --admin-active-color: #00D2A0;
+  --admin-active-color: #01c6b2;
   --admin-text-main: #F8FAFC;
   --admin-text-muted: #94A3B8;
   --admin-bg-body: #F1F5F9;
@@ -65,7 +65,7 @@
   background: transparent; border: none; color: #334155;
   font-size: 1.25rem; padding: 6px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
-.admin-layout[data-admin-layout] .help-btn:hover { color: #00A67E; }
+.admin-layout[data-admin-layout] .help-btn:hover { color: #01c6b2; }
 
 /* Notification: cloche pure */
 .admin-layout[data-admin-layout] .notif-container { position: relative; }
@@ -74,7 +74,7 @@
   font-size: 1.25rem; padding: 6px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
 .admin-layout[data-admin-layout] .bell-btn:hover, 
-.admin-layout[data-admin-layout] .bell-btn.active { color: #00A67E; }
+.admin-layout[data-admin-layout] .bell-btn.active { color: #01c6b2; }
 
 /* Badge + Ping */
 .admin-layout[data-admin-layout] .badge {
@@ -112,7 +112,7 @@
   font-size: 1.2rem; padding: 6px; border-radius: 6px; cursor: pointer;
 }
 .admin-layout[data-admin-layout] .ellipsis-btn:hover,
-.admin-layout[data-admin-layout] .ellipsis-btn.active { color: #00A67E; }
+.admin-layout[data-admin-layout] .ellipsis-btn.active { color: #01c6b2; }
 
 /* Dropdowns */
 .admin-layout[data-admin-layout] .notif-panel,
@@ -128,7 +128,7 @@
 .admin-layout[data-admin-layout] .panel-section { padding: 12px 12px 8px; border-bottom: 1px solid #F1F5F9; }
 .admin-layout[data-admin-layout] .panel-section:last-child { border-bottom: none; }
 .admin-layout[data-admin-layout] .panel-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: #1F2937; }
-.admin-layout[data-admin-layout] .panel-title .count { background: #E0FBF4; color: #047857; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; }
+.admin-layout[data-admin-layout] .panel-title .count { background: #E0FBF4; color: #01c6b2; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; }
 .admin-layout[data-admin-layout] .panel-title .count.warn { background: #FEF3C7; color: #D97706; }
 .admin-layout[data-admin-layout] .panel-link { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; color: #00A67E; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
 .admin-layout[data-admin-layout] .panel-link:hover { text-decoration: underline; }

@@ -29,7 +29,7 @@
 /* Grosse sphère - Vert Menthe (Haut Droite) */
 .shape-1 {
   width: 300px; height: 300px;
-  background: linear-gradient(135deg, #00D2A0, #00A67E);
+  background: linear-gradient(135deg, #01c6b2, #01c6b2);
   top: -50px; right: -50px;
   box-shadow: 0 20px 50px rgba(0, 210, 160, 0.25);
 }
@@ -38,7 +38,7 @@
 .shape-2 {
   width: 220px; height: 220px;
   /* Un vert plus sombre et élégant pour le contraste */
-  background: linear-gradient(135deg, #10B981, #047857); 
+  background: linear-gradient(135deg, #01c6b2, #01c6b2); 
   bottom: 40px; left: -60px;
   animation-delay: 1s;
   opacity: 0.9;
@@ -127,7 +127,7 @@
 }
 
 .input-wrapper input:focus {
-  border-color: #00D2A0;
+  border-color: #01c6b2;
   background: #fff;
   box-shadow: 0 0 0 4px rgba(0, 210, 160, 0.2);
 }
@@ -135,10 +135,10 @@
 /* LIENS & BOUTONS */
 .forgot-pass { text-align: right; font-size: 0.85rem; }
 .forgot-pass a { color: #6B7280; text-decoration: none; transition: color 0.2s; }
-.forgot-pass a:hover { color: #00D2A0; }
+.forgot-pass a:hover { color: #01c6b2; }
 
 .btn-glass-submit {
-  background: #00D2A0; color: white; border: none;
+  background: #01c6b2; color: white; border: none;
   padding: 15px; border-radius: 50px;
   font-size: 1.1rem; font-weight: 600;
   cursor: pointer; transition: all 0.3s;
@@ -147,7 +147,7 @@
 }
 
 .btn-glass-submit:hover {
-  background: #00A67E;
+  background: #01c6b2;
   transform: translateY(-3px);
   box-shadow: 0 15px 25px rgba(0, 210, 160, 0.4);
 }
@@ -155,7 +155,7 @@
 .btn-glass-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
 .login-footer { margin-top: 30px; font-size: 0.9rem; color: #6B7280; }
-.login-footer a { color: #00D2A0; font-weight: 700; text-decoration: none; }
+.login-footer a { color: #01c6b2; font-weight: 700; text-decoration: none; }
 .login-footer a:hover { text-decoration: underline; }
 
 /* src/apps/utilisateur/Login.css */

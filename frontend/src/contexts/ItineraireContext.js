@@ -1,5 +1,6 @@
-// src/contexts/ItineraireContext.js
-import React, { createContext, useContext, useState } from 'react';
+// src/contexts/ItineraireContext.jsx
+
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const ItineraireContext = createContext();
 
@@ -13,30 +14,58 @@ export const useItineraire = () => {
 
 export const ItineraireProvider = ({ children }) => {
   const [itineraireSelectionne, setItineraireSelectionne] = useState(null);
-  const [departArrivee, setDepartArrivee] = useState(null);
+  const [depart, setDepart] = useState(null);
+  const [arrivee, setArrivee] = useState(null);
 
-  const selectionnerItineraire = (itineraire, depart, arrivee) => {
-    setItineraireSelectionne(itineraire);
-    setDepartArrivee({ depart, arrivee });
+  const selectionnerItineraire = useCallback((itineraire, departInfo, arriveeInfo) => {
     console.log('📍 Itinéraire sélectionné:', itineraire);
-  };
+    console.log('📍 Départ:', departInfo);
+    console.log('📍 Arrivée:', arriveeInfo);
+    setItineraireSelectionne(itineraire);
+    setDepart(departInfo);
+    setArrivee(arriveeInfo);
+  }, []);
 
-  const effacerItineraire = () => {
-    setItineraireSelectionne(null);
-    setDepartArrivee(null);
+  const effacerItineraire = useCallback(() => {
     console.log('🗑️ Itinéraire effacé');
-  };
+    setItineraireSelectionne(null);
+    setDepart(null);
+    setArrivee(null);
+  }, []);
+
+  // Helper pour obtenir tous les arrêts de l'itinéraire
+  const getArretsItineraire = useCallback(() => {
+    if (!itineraireSelectionne) return [];
+
+    if (itineraireSelectionne.type === 'direct') {
+      return itineraireSelectionne.arrets || [];
+    }
+
+    if (itineraireSelectionne.type === 'correspondance') {
+      const arrets1 = itineraireSelectionne.trajet1?.arrets || [];
+      const arrets2 = itineraireSelectionne.trajet2?.arrets || [];
+      return [...arrets1, ...arrets2];
+    }
+
+    return [];
+  }, [itineraireSelectionne]);
 
   return (
     <ItineraireContext.Provider
       value={{
         itineraireSelectionne,
-        departArrivee,
+        depart,
+        arrivee,
+        // Compatibilité avec ton ancien code
+        departArrivee: depart && arrivee ? { depart, arrivee } : null,
         selectionnerItineraire,
         effacerItineraire,
+        getArretsItineraire,
       }}
     >
       {children}
     </ItineraireContext.Provider>
   );
 };
+
+export default ItineraireContext;

@@ -1,13 +1,15 @@
+// src/components/Carte/CarteInteractive.jsx
+
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { localisationService } from '../../services/localisationService';
 import { transportService } from '../../services/transportService';
-import { trouverCentre, calculerBounds, genererCouleurBus, formaterDistance, calculerDistance } from '../../utils/carteUtils';
+import { trouverCentre, calculerBounds, genererCouleurBus } from '../../utils/carteUtils';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useItineraire } from '../../contexts/ItineraireContext';
-import { FaBus, FaMapMarkerAlt, FaLocationArrow, FaTimes, FaRoad } from 'react-icons/fa';
+import { FaBus, FaLocationArrow, FaTimes, FaArrowRight } from 'react-icons/fa';
 import './CarteInteractive.css';
 
 // --- CONFIGURATION LEAFLET ---
@@ -21,17 +23,27 @@ L.Icon.Default.mergeOptions({
 // --- COMPOSANTS UTILES ---
 const RecenterMap = ({ center }) => {
   const map = useMap();
-  useEffect(() => { if (center) map.setView(center, map.getZoom()); }, [center, map]);
+  useEffect(() => { 
+    if (center) map.setView(center, map.getZoom()); 
+  }, [center, map]);
   return null;
 };
 
 const FitBounds = ({ bounds }) => {
   const map = useMap();
-  useEffect(() => { if (bounds) map.fitBounds(bounds, { padding: [50, 50] }); }, [bounds, map]);
+  useEffect(() => { 
+    if (bounds && bounds.length > 0) {
+      try {
+        map.fitBounds(bounds, { padding: [50, 50] });
+      } catch (e) {
+        console.error('Erreur fitBounds:', e);
+      }
+    }
+  }, [bounds, map]);
   return null;
 };
 
-// --- ICONES ---
+// --- ICONES PERSONNALISÉES ---
 const userIcon = new L.DivIcon({
   className: 'user-location-marker',
   html: '<div class="pulse"></div>',
@@ -39,11 +51,34 @@ const userIcon = new L.DivIcon({
   iconAnchor: [10, 10]
 });
 
+const createCustomIcon = (color, label) => new L.DivIcon({
+  className: 'custom-marker-icon',
+  html: `
+    <div class="marker-pin" style="background: ${color};">
+      <span>${label}</span>
+    </div>
+  `,
+  iconSize: [30, 42],
+  iconAnchor: [15, 42],
+  popupAnchor: [0, -42],
+});
+
+const departIcon = createCustomIcon('#2ecc71', 'D');
+const arriveeIcon = createCustomIcon('#e74c3c', 'A');
+const correspondanceIcon = createCustomIcon('#f39c12', 'C');
+
 const arretIcon = (isSelected) => new L.DivIcon({
   className: 'custom-div-icon',
-  html: `<div style="background-color: ${isSelected ? '#00D2A0' : '#fff'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid ${isSelected ? '#fff' : '#666'}; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
-  iconSize: [12, 12],
-  iconAnchor: [6, 6]
+  html: `<div style="
+    background-color: ${isSelected ? '#00D2A0' : '#fff'}; 
+    width: 14px; 
+    height: 14px; 
+    border-radius: 50%; 
+    border: 3px solid ${isSelected ? '#fff' : '#3498db'}; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  "></div>`,
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
 });
 
 const CarteInteractive = () => {
@@ -57,13 +92,21 @@ const CarteInteractive = () => {
   const [mapCenter, setMapCenter] = useState([-18.8792, 47.5079]);
   const [mapBounds, setMapBounds] = useState(null);
 
-  const { location: userLocation, error: geoError } = useGeolocation();
-  const { itineraireSelectionne, departArrivee, effacerItineraire } = useItineraire();
+  const { location: userLocation } = useGeolocation();
+  const { 
+    itineraireSelectionne, 
+    depart, 
+    arrivee, 
+    departArrivee, 
+    effacerItineraire 
+  } = useItineraire();
 
   // Chargement initial
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { 
+    loadData(); 
+  }, []);
 
-  // Centrage sur les arrêts
+  // Centrage sur les arrêts généraux
   useEffect(() => {
     if (arrets.length > 0 && !itineraireSelectionne) {
       const center = trouverCentre(arrets);
@@ -73,23 +116,63 @@ const CarteInteractive = () => {
     }
   }, [arrets, itineraireSelectionne]);
 
-  // Gestion Itinéraire Context
+  // 🔥 Gestion Itinéraire Context - CORRECTION PRINCIPALE
   useEffect(() => {
-    if (itineraireSelectionne && itineraireSelectionne.arrets) {
-      const bounds = calculerBounds(itineraireSelectionne.arrets);
-      setMapBounds(bounds);
+    if (itineraireSelectionne) {
+      console.log('🗺️ Affichage itinéraire sur la carte:', itineraireSelectionne);
+      
+      let arretsItineraire = [];
+      
+      // Récupérer les arrêts selon le type d'itinéraire
+      if (itineraireSelectionne.type === 'direct' && itineraireSelectionne.arrets) {
+        arretsItineraire = itineraireSelectionne.arrets;
+      } else if (itineraireSelectionne.type === 'correspondance') {
+        const arrets1 = itineraireSelectionne.trajet1?.arrets || [];
+        const arrets2 = itineraireSelectionne.trajet2?.arrets || [];
+        arretsItineraire = [...arrets1, ...arrets2];
+      }
+      
+      // Ajouter départ et arrivée si disponibles
+      if (depart?.latitude && depart?.longitude) {
+        arretsItineraire = [{ 
+          id: 'depart', 
+          latitude: depart.latitude, 
+          longitude: depart.longitude,
+          nom: depart.nom 
+        }, ...arretsItineraire];
+      }
+      
+      if (arrivee?.latitude && arrivee?.longitude) {
+        arretsItineraire = [...arretsItineraire, { 
+          id: 'arrivee', 
+          latitude: arrivee.latitude, 
+          longitude: arrivee.longitude,
+          nom: arrivee.nom 
+        }];
+      }
+
+      if (arretsItineraire.length > 0) {
+        const bounds = calculerBounds(arretsItineraire);
+        setMapBounds(bounds);
+      }
+      
       setShowAllRoutes(false);
-      setSelectedBus(itineraireSelectionne.bus.id);
+      
+      if (itineraireSelectionne.bus?.id) {
+        setSelectedBus(itineraireSelectionne.bus.id);
+      }
     }
-  }, [itineraireSelectionne]);
+  }, [itineraireSelectionne, depart, arrivee]);
 
   const loadData = async () => {
     setLoading(true);
     try {
       const arretsResponse = await localisationService.getAllArrets();
       setArrets(arretsResponse.data || []);
+      
       const busesResponse = await transportService.getAllBuses();
       setBuses(busesResponse.data || []);
+      
       await loadAllTrajets(busesResponse.data || []);
     } catch (err) {
       console.error(err);
@@ -104,7 +187,7 @@ const CarteInteractive = () => {
     for (const bus of busList) {
       try {
         const response = await transportService.getBusById(bus.id);
-        if (response.data.trajets) {
+        if (response.data?.trajets) {
           response.data.trajets.forEach((trajet) => {
             if (trajet.arrets?.length > 0) {
               trajetsData.push({
@@ -117,7 +200,9 @@ const CarteInteractive = () => {
             }
           });
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error(err); 
+      }
     }
     setTrajets(trajetsData);
   };
@@ -127,7 +212,9 @@ const CarteInteractive = () => {
   };
 
   const handleRecenterUser = () => {
-    if (userLocation) setMapCenter([userLocation.latitude, userLocation.longitude]);
+    if (userLocation) {
+      setMapCenter([userLocation.latitude, userLocation.longitude]);
+    }
   };
 
   const handleEffacerItineraire = () => {
@@ -136,8 +223,55 @@ const CarteInteractive = () => {
     setSelectedBus(null);
   };
 
-  if (loading) return <div className="carte-loading"><div className="spinner"></div><p>Chargement...</p></div>;
-  if (error) return <div className="carte-error"><p>❌ {error}</p><button onClick={loadData}>Réessayer</button></div>;
+  // Obtenir les positions de la polyline pour l'itinéraire
+  const getItinerairePositions = () => {
+    if (!itineraireSelectionne) return [];
+
+    if (itineraireSelectionne.type === 'direct' && itineraireSelectionne.arrets) {
+      return itineraireSelectionne.arrets
+        .filter(a => a.latitude && a.longitude)
+        .map(a => [a.latitude, a.longitude]);
+    }
+
+    return [];
+  };
+
+  const getCorrespondancePositions = () => {
+    if (!itineraireSelectionne || itineraireSelectionne.type !== 'correspondance') {
+      return { trajet1: [], trajet2: [] };
+    }
+
+    const trajet1 = (itineraireSelectionne.trajet1?.arrets || [])
+      .filter(a => a.latitude && a.longitude)
+      .map(a => [a.latitude, a.longitude]);
+
+    const trajet2 = (itineraireSelectionne.trajet2?.arrets || [])
+      .filter(a => a.latitude && a.longitude)
+      .map(a => [a.latitude, a.longitude]);
+
+    return { trajet1, trajet2 };
+  };
+
+  if (loading) {
+    return (
+      <div className="carte-loading">
+        <div className="spinner"></div>
+        <p>Chargement de la carte...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="carte-error">
+        <p>❌ {error}</p>
+        <button onClick={loadData}>Réessayer</button>
+      </div>
+    );
+  }
+
+  const itinerairePositions = getItinerairePositions();
+  const correspondancePositions = getCorrespondancePositions();
 
   return (
     <div className="carte-interactive-container">
@@ -149,23 +283,84 @@ const CarteInteractive = () => {
           <p>{buses.length} bus • {arrets.length} arrêts</p>
         </div>
 
-        {/* Affichage Itinéraire Sélectionné */}
-        {itineraireSelectionne && departArrivee && (
+        {/* 🔥 Affichage Itinéraire Sélectionné */}
+        {itineraireSelectionne && (depart || arrivee || departArrivee) && (
           <div className="itineraire-card">
             <div className="itineraire-header-card">
-              <h3>Trajet Actif</h3>
-              <button onClick={handleEffacerItineraire} className="btn-close-route"><FaTimes /></button>
+              <h3>🗺️ Trajet Actif</h3>
+              <button onClick={handleEffacerItineraire} className="btn-close-route">
+                <FaTimes />
+              </button>
             </div>
+            
             <div className="itineraire-info">
               <div className="itineraire-points">
-                <span className="point start">{departArrivee.depart.nom}</span>
-                <span className="arrow">➜</span>
-                <span className="point end">{departArrivee.arrivee.nom}</span>
+                <div className="point-row">
+                  <span className="point-marker start">D</span>
+                  <span className="point-name">
+                    {depart?.nom || departArrivee?.depart?.nom || 'Départ'}
+                  </span>
+                </div>
+                <div className="point-arrow">
+                  <FaArrowRight />
+                </div>
+                <div className="point-row">
+                  <span className="point-marker end">A</span>
+                  <span className="point-name">
+                    {arrivee?.nom || departArrivee?.arrivee?.nom || 'Arrivée'}
+                  </span>
+                </div>
               </div>
+              
               <div className="itineraire-meta">
-                <span className="badge-bus">Bus {itineraireSelectionne.bus.numero}</span>
-                <span>{itineraireSelectionne.nb_arrets} arrêts</span>
+                {itineraireSelectionne.type === 'direct' ? (
+                  <>
+                    <span className="badge-bus">
+                      <FaBus /> Bus {itineraireSelectionne.bus?.numero}
+                    </span>
+                    <span className="badge-arrets">
+                      {itineraireSelectionne.nb_arrets} arrêts
+                    </span>
+                    <span className="badge-prix">
+                      {itineraireSelectionne.bus?.frais || 600} Ar
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="badge-correspondance">
+                      Correspondance
+                    </span>
+                    <span className="badge-prix">
+                      {itineraireSelectionne.frais_total} Ar
+                    </span>
+                  </>
+                )}
               </div>
+
+              {/* Détails correspondance */}
+              {itineraireSelectionne.type === 'correspondance' && (
+                <div className="correspondance-details">
+                  <div className="corresp-leg">
+                    <span className="leg-bus blue">
+                      Bus {itineraireSelectionne.trajet1?.bus?.numero}
+                    </span>
+                    <span className="leg-arrow">→</span>
+                    <span className="leg-point">
+                      {itineraireSelectionne.arret_correspondance?.nom}
+                    </span>
+                  </div>
+                  <div className="corresp-change">
+                    🔄 Changer de bus
+                  </div>
+                  <div className="corresp-leg">
+                    <span className="leg-bus red">
+                      Bus {itineraireSelectionne.trajet2?.bus?.numero}
+                    </span>
+                    <span className="leg-arrow">→</span>
+                    <span className="leg-point">Arrivée</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -201,7 +396,10 @@ const CarteInteractive = () => {
                     className={`bus-item-row ${selectedBus === bus.id ? 'active' : ''}`}
                     onClick={() => handleBusClick(bus.id)}
                   >
-                    <div className="bus-badge-icon" style={{ backgroundColor: genererCouleurBus(bus.id) }}>
+                    <div 
+                      className="bus-badge-icon" 
+                      style={{ backgroundColor: genererCouleurBus(bus.id) }}
+                    >
                       {bus.numeroBus}
                     </div>
                     <div className="bus-text-info">
@@ -224,34 +422,150 @@ const CarteInteractive = () => {
 
       {/* --- MAP --- */}
       <div className="carte-map-wrapper">
-        <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+        <MapContainer 
+          center={mapCenter} 
+          zoom={13} 
+          style={{ height: '100%', width: '100%' }} 
+          zoomControl={false}
+        >
           <TileLayer
-            attribution='&copy; CARTO'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; OpenStreetMap'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
           {mapBounds && <FitBounds bounds={mapBounds} />}
           <RecenterMap center={mapCenter} />
 
-          {/* User Position */}
+          {/* Position Utilisateur */}
           {userLocation && (
-            <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
-              <Popup>Vous êtes ici</Popup>
+            <Marker 
+              position={[userLocation.latitude, userLocation.longitude]} 
+              icon={userIcon}
+            >
+              <Popup>📍 Vous êtes ici</Popup>
             </Marker>
           )}
 
-          {/* Arrêts */}
-          {arrets.map((arret) => {
-            const isOnSelectedRoute = selectedBus && trajets.filter(t => t.busId === selectedBus).some(t => t.arrets.some(a => a.id === arret.id));
-            const isDepartOuArrivee = departArrivee && (arret.id === departArrivee.depart.id || arret.id === departArrivee.arrivee.id);
-            
-            if (isDepartOuArrivee) return null; // On utilise des marqueurs spéciaux pour ça
+          {/* 🔥 MARQUEUR DÉPART */}
+          {itineraireSelectionne && depart?.latitude && depart?.longitude && (
+            <Marker 
+              position={[depart.latitude, depart.longitude]} 
+              icon={departIcon}
+            >
+              <Popup>
+                <div className="popup-custom">
+                  <strong>🟢 Départ</strong>
+                  <p>{depart.nom}</p>
+                </div>
+              </Popup>
+            </Marker>
+          )}
 
-            // On affiche l'arrêt seulement si on montre tout ou s'il est sur la ligne sélectionnée
-            if (!showAllRoutes && !isOnSelectedRoute && !selectedBus) return null;
+          {/* 🔥 MARQUEUR ARRIVÉE */}
+          {itineraireSelectionne && arrivee?.latitude && arrivee?.longitude && (
+            <Marker 
+              position={[arrivee.latitude, arrivee.longitude]} 
+              icon={arriveeIcon}
+            >
+              <Popup>
+                <div className="popup-custom">
+                  <strong>🔴 Arrivée</strong>
+                  <p>{arrivee.nom}</p>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+
+          {/* 🔥 MARQUEUR CORRESPONDANCE */}
+          {itineraireSelectionne?.type === 'correspondance' && 
+           itineraireSelectionne.arret_correspondance?.latitude && (
+            <Marker 
+              position={[
+                itineraireSelectionne.arret_correspondance.latitude, 
+                itineraireSelectionne.arret_correspondance.longitude
+              ]} 
+              icon={correspondanceIcon}
+            >
+              <Popup>
+                <div className="popup-custom">
+                  <strong>🟠 Correspondance</strong>
+                  <p>{itineraireSelectionne.arret_correspondance.nom}</p>
+                  <small>Changez de bus ici</small>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+
+          {/* 🔥 POLYLINE ITINÉRAIRE DIRECT */}
+          {itineraireSelectionne?.type === 'direct' && itinerairePositions.length > 1 && (
+            <Polyline 
+              positions={itinerairePositions} 
+              color="#3498db" 
+              weight={6}
+              opacity={0.9}
+            />
+          )}
+
+          {/* 🔥 POLYLINES CORRESPONDANCE */}
+          {itineraireSelectionne?.type === 'correspondance' && (
+            <>
+              {correspondancePositions.trajet1.length > 1 && (
+                <Polyline 
+                  positions={correspondancePositions.trajet1} 
+                  color="#3498db" 
+                  weight={6}
+                  opacity={0.9}
+                />
+              )}
+              {correspondancePositions.trajet2.length > 1 && (
+                <Polyline 
+                  positions={correspondancePositions.trajet2} 
+                  color="#e74c3c" 
+                  weight={6}
+                  opacity={0.9}
+                />
+              )}
+            </>
+          )}
+
+          {/* 🔥 ARRÊTS INTERMÉDIAIRES DE L'ITINÉRAIRE */}
+          {itineraireSelectionne?.type === 'direct' && itineraireSelectionne.arrets?.map((arret, index) => {
+            // Skip premier (départ) et dernier (arrivée)
+            if (index === 0 || index === itineraireSelectionne.arrets.length - 1) return null;
+            if (!arret.latitude || !arret.longitude) return null;
 
             return (
-              <Marker key={arret.id} position={[arret.latitude, arret.longitude]} icon={arretIcon(isOnSelectedRoute)}>
+              <Marker
+                key={`itineraire-arret-${index}`}
+                position={[arret.latitude, arret.longitude]}
+                icon={arretIcon(true)}
+              >
+                <Popup>
+                  <div className="popup-custom">
+                    <strong>📍 Arrêt {index}</strong>
+                    <p>{arret.nom}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          {/* Arrêts généraux (quand pas d'itinéraire) */}
+          {!itineraireSelectionne && arrets.map((arret) => {
+            if (!arret.latitude || !arret.longitude) return null;
+            
+            const isOnSelectedRoute = selectedBus && 
+              trajets.filter(t => t.busId === selectedBus)
+                .some(t => t.arrets.some(a => a.id === arret.id));
+
+            if (!showAllRoutes && !isOnSelectedRoute) return null;
+
+            return (
+              <Marker 
+                key={arret.id} 
+                position={[arret.latitude, arret.longitude]} 
+                icon={arretIcon(isOnSelectedRoute)}
+              >
                 <Popup>
                   <strong>{arret.nomArret || arret.nom}</strong>
                 </Popup>
@@ -259,16 +573,21 @@ const CarteInteractive = () => {
             );
           })}
 
-          {/* Trajets (Lignes) */}
-          {trajets.map((trajet) => {
-            if (itineraireSelectionne && trajet.busId !== itineraireSelectionne.bus.id) return null;
+          {/* Trajets généraux (quand pas d'itinéraire sélectionné) */}
+          {!itineraireSelectionne && trajets.map((trajet) => {
             const shouldShow = showAllRoutes || selectedBus === trajet.busId;
             if (!shouldShow) return null;
 
+            const positions = trajet.arrets
+              .filter(a => a.latitude && a.longitude)
+              .map(a => [a.latitude, a.longitude]);
+
+            if (positions.length < 2) return null;
+
             return (
               <Polyline
-                key={`${trajet.busId}-${trajet.trajetId}`}
-                positions={trajet.arrets.map(a => [a.latitude, a.longitude])}
+                key={`trajet-${trajet.busId}-${trajet.trajetId}`}
+                positions={positions}
                 color={selectedBus === trajet.busId ? '#00D2A0' : trajet.couleur}
                 weight={selectedBus === trajet.busId ? 6 : 4}
                 opacity={selectedBus === trajet.busId ? 1 : 0.6}

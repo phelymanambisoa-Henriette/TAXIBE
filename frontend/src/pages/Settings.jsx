@@ -1,51 +1,113 @@
-// src/pages/Settings.jsx (COMPLET et THÈME CORRIGÉ)
+// src/pages/Settings.jsx
 import React, { useState, useEffect } from 'react';
-import { FaUserCog, FaPalette, FaTrash, FaSync, FaSignOutAlt, FaSun, FaMoon } from 'react-icons/fa';
+import { 
+  FaUserCog, FaPalette, FaTrash, FaSync, FaSignOutAlt, 
+  FaSun, FaMoon, FaBell, FaLock, FaLanguage, FaShieldAlt,
+  FaEye, FaEyeSlash, FaSave, FaCheck
+} from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import './Settings.css';
 
 const Settings = () => {
   const { user, logout } = useAuth();
+  const { theme, language, toggleTheme, changeLanguage, isDark } = useTheme();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // État local pour l'affichage du thème actuel
-  const [currentTheme, setCurrentTheme] = useState('');
+  // États
   const [isDeleting, setIsDeleting] = useState(false);
+  const [savedMessage, setSavedMessage] = useState('');
+  
+  // Préférences
+  const [preferences, setPreferences] = useState({
+    notifications: { email: true, push: true, sms: false },
+    privacy: { showProfile: true, showLocation: false }
+  });
 
-  // 🔥 Logique du Thème (Rendue locale car elle manipule le DOM) 🔥
-  const handleThemeToggle = () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'light' ? 'dark' : 'light';
-    
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-    setCurrentTheme(next);
+  // Mot de passe
+  const [passwordData, setPasswordData] = useState({
+    current: '', new: '', confirm: ''
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false, new: false, confirm: false
+  });
+  const [passwordError, setPasswordError] = useState('');
+
+  // Message de sauvegarde
+  const showSavedMessage = (msg) => {
+    setSavedMessage(msg);
+    setTimeout(() => setSavedMessage(''), 3000);
   };
 
-  useEffect(() => {
-    // Lire l'attribut data-theme actuel au chargement
-    const theme = document.documentElement.getAttribute('data-theme') || 'light';
-    setCurrentTheme(theme);
-    
-    // Attacher un observateur pour mettre à jour l'état si le thème est changé via le header
-    const observer = new MutationObserver(() => {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        setCurrentTheme(current);
-    });
-    
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    
-    return () => observer.disconnect();
-  }, []);
+  // Changer la langue
+  const handleLanguageChange = (e) => {
+    changeLanguage(e.target.value);
+    showSavedMessage(t('messages.languageChanged'));
+  };
 
-  // Logique Cache (reprise du Header)
+  // Toggle thème
+  const handleThemeToggle = () => {
+    toggleTheme();
+    showSavedMessage(t('messages.themeChanged'));
+  };
+
+  // Notifications
+  const handleNotificationChange = (type) => {
+    setPreferences(prev => ({
+      ...prev,
+      notifications: { ...prev.notifications, [type]: !prev.notifications[type] }
+    }));
+  };
+
+  // Confidentialité
+  const handlePrivacyChange = (type) => {
+    setPreferences(prev => ({
+      ...prev,
+      privacy: { ...prev.privacy, [type]: !prev.privacy[type] }
+    }));
+  };
+
+  // Sauvegarder
+  const savePreferences = () => {
+    localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    showSavedMessage(t('messages.preferencesSaved'));
+  };
+
+  // Mot de passe
+  const handlePasswordChange = async () => {
+    setPasswordError('');
+    
+    if (passwordData.new.length < 8) {
+      setPasswordError(t('messages.passwordMinLength'));
+      return;
+    }
+    
+    if (passwordData.new !== passwordData.confirm) {
+      setPasswordError(t('messages.passwordMismatch'));
+      return;
+    }
+
+    try {
+      // TODO: Appel API
+      showSavedMessage(t('messages.passwordChanged'));
+      setPasswordData({ current: '', new: '', confirm: '' });
+    } catch (error) {
+      setPasswordError(t('common.error'));
+    }
+  };
+
+  // Cache
   const clearLocalCacheSafe = () => {
-    if (!window.confirm("Voulez-vous vider le cache local ? Vos préférences (mais PAS votre session) seront réinitialisées.")) return;
+    if (!window.confirm(t('messages.confirmClearCache'))) return;
 
     const access = localStorage.getItem('access_token');
     const refresh = localStorage.getItem('refresh_token');
     const userJSON = localStorage.getItem('user');
+    const savedTheme = localStorage.getItem('theme');
+    const savedLang = localStorage.getItem('language');
     
     localStorage.clear();
     sessionStorage.clear();
@@ -53,107 +115,269 @@ const Settings = () => {
     if (access) localStorage.setItem('access_token', access);
     if (refresh) localStorage.setItem('refresh_token', refresh);
     if (userJSON) localStorage.setItem('user', userJSON);
+    if (savedTheme) localStorage.setItem('theme', savedTheme);
+    if (savedLang) localStorage.setItem('language', savedLang);
     
-    alert('✅ Cache utilisateur nettoyé. Actualisation recommandée.');
+    showSavedMessage(t('messages.cacheCleared'));
   };
 
+  // Suppression compte
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Êtes-vous SÛR de vouloir supprimer votre compte ? Cette action est irréversible.")) return;
+    const deleteWord = language === 'en' ? 'DELETE' : language === 'mg' ? 'HAMAFA' : 'SUPPRIMER';
+    const confirmation = window.prompt(t('messages.confirmDelete'));
+    
+    if (confirmation !== deleteWord) {
+      alert(t('messages.deleteCancelled'));
+      return;
+    }
 
     setIsDeleting(true);
     try {
-      // NOTE: Appel API réel à implémenter ici
-      
-      logout(false); 
-      alert('✅ Votre compte a été supprimé. Merci d\'avoir utilisé TaxiBe.');
-      navigate('/register'); 
-
+      logout(false);
+      navigate('/register');
     } catch (error) {
-      alert('❌ Erreur lors de la suppression du compte.');
+      alert(t('common.error'));
     } finally {
       setIsDeleting(false);
     }
   };
 
+  // Charger préférences
+  useEffect(() => {
+    const savedPrefs = localStorage.getItem('userPreferences');
+    if (savedPrefs) {
+      setPreferences(JSON.parse(savedPrefs));
+    }
+  }, []);
+
   return (
     <div className="settings-page">
       <div className="settings-container">
         
-        {/* HEADER */}
+        {/* Notification */}
+        {savedMessage && (
+          <div className="save-notification">
+            <FaCheck /> {savedMessage}
+          </div>
+        )}
+
+        {/* Header */}
         <div className="settings-header">
-          <h1><FaUserCog /> Paramètres Utilisateur</h1>
-          <p>Gérez vos préférences et votre compte.</p>
+          <h1><FaUserCog /> {t('settings.title')}</h1>
+          <p>{t('settings.welcome')}, <strong>{user?.username || 'Utilisateur'}</strong></p>
         </div>
 
         <div className="settings-grid">
           
-          {/* CARTE 1 : Préférences d'affichage */}
+          {/* 🌙 THÈME */}
           <div className="settings-card">
-            <h2><FaPalette /> Apparence</h2>
+            <h2><FaPalette /> {t('settings.appearance')}</h2>
             
             <div className="setting-item-row">
-                <span className="setting-label">Thème Actuel : 
-                    <strong className={`theme-status ${currentTheme}`}>
-                        {currentTheme === 'dark' ? 'Sombre' : 'Clair'}
-                    </strong>
-                </span>
-                <button 
-                    onClick={handleThemeToggle} 
-                    className="btn-action primary"
-                    title="Bascule entre le mode sombre et clair"
-                >
-                    {currentTheme === 'dark' ? <FaSun /> : <FaMoon />} Basculer
-                </button>
+              <span className="setting-label">
+                {t('settings.theme')} : 
+                <strong className={`theme-status ${theme}`}>
+                  {isDark ? `🌙 ${t('settings.dark')}` : `☀️ ${t('settings.light')}`}
+                </strong>
+              </span>
+              <button onClick={handleThemeToggle} className="btn-action primary">
+                {isDark ? <FaSun /> : <FaMoon />} {t('settings.toggle')}
+              </button>
             </div>
+          </div>
 
-            <div className="setting-description">
-                Modifie l'apparence de l'interface complète (Le thème est appliqué sur toutes les pages).
+          {/* 🌍 LANGUE */}
+          <div className="settings-card">
+            <h2><FaLanguage /> {t('settings.language')}</h2>
+            
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.selectLanguage')}</span>
+              <select 
+                value={language} 
+                onChange={handleLanguageChange}
+                className="setting-select"
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="mg">🇲🇬 Malagasy</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
             </div>
           </div>
           
-          {/* CARTE 2 : Gestion du cache */}
+          {/* 🔔 NOTIFICATIONS */}
           <div className="settings-card">
-            <h2><FaSync /> Données Locales</h2>
+            <h2><FaBell /> {t('settings.notifications')}</h2>
             
             <div className="setting-item-row">
-                <span className="setting-label">Nettoyer le cache</span>
-                <button 
-                    onClick={clearLocalCacheSafe} 
-                    className="btn-action secondary"
-                >
-                    Vider le cache
-                </button>
+              <span className="setting-label">{t('settings.email')}</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={preferences.notifications.email}
+                  onChange={() => handleNotificationChange('email')}
+                />
+                <span className="slider"></span>
+              </label>
             </div>
-            <div className="setting-description">
-                Supprime les données temporaires (sauf les tokens de connexion) pour résoudre les bugs d'affichage.
+
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.push')}</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={preferences.notifications.push}
+                  onChange={() => handleNotificationChange('push')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.sms')}</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={preferences.notifications.sms}
+                  onChange={() => handleNotificationChange('sms')}
+                />
+                <span className="slider"></span>
+              </label>
             </div>
           </div>
 
-          {/* CARTE 3 : Danger Zone */}
-          <div className="settings-card danger-zone">
-            <h2><FaTrash /> Gestion du Compte</h2>
+          {/* 🔒 CONFIDENTIALITÉ */}
+          <div className="settings-card">
+            <h2><FaShieldAlt /> {t('settings.privacy')}</h2>
             
             <div className="setting-item-row">
-                <span className="setting-label">Suppression du compte</span>
+              <span className="setting-label">{t('settings.publicProfile')}</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={preferences.privacy.showProfile}
+                  onChange={() => handlePrivacyChange('showProfile')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.shareLocation')}</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={preferences.privacy.showLocation}
+                  onChange={() => handlePrivacyChange('showLocation')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          {/* 🔑 SÉCURITÉ */}
+          <div className="settings-card">
+            <h2><FaLock /> {t('settings.security')}</h2>
+            
+            {passwordError && <div className="error-message">{passwordError}</div>}
+            
+            <div className="password-field">
+              <label>{t('settings.currentPassword')}</label>
+              <div className="input-with-icon">
+                <input 
+                  type={showPasswords.current ? 'text' : 'password'}
+                  value={passwordData.current}
+                  onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
+                  placeholder="••••••••"
+                />
                 <button 
-                    onClick={handleDeleteAccount} 
-                    className="btn-action danger"
-                    disabled={isDeleting}
+                  type="button"
+                  onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
                 >
-                    {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
+                  {showPasswords.current ? <FaEyeSlash /> : <FaEye />}
                 </button>
+              </div>
             </div>
-            <div className="setting-description">
-                Attention : Supprimer votre compte est irréversible.
+
+            <div className="password-field">
+              <label>{t('settings.newPassword')}</label>
+              <div className="input-with-icon">
+                <input 
+                  type={showPasswords.new ? 'text' : 'password'}
+                  value={passwordData.new}
+                  onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
+                  placeholder={t('settings.minChars')}
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                >
+                  {showPasswords.new ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
+
+            <div className="password-field">
+              <label>{t('settings.confirmPassword')}</label>
+              <div className="input-with-icon">
+                <input 
+                  type={showPasswords.confirm ? 'text' : 'password'}
+                  value={passwordData.confirm}
+                  onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
+                  placeholder={t('settings.confirmPassword')}
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                >
+                  {showPasswords.confirm ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            <button onClick={handlePasswordChange} className="btn-action primary full-width">
+              <FaLock /> {t('settings.changePassword')}
+            </button>
+          </div>
+          
+          {/* 🗑️ CACHE */}
+          <div className="settings-card">
+            <h2><FaSync /> {t('settings.localData')}</h2>
+            
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.clearCache')}</span>
+              <button onClick={clearLocalCacheSafe} className="btn-action secondary">
+                <FaSync /> {t('settings.clear')}
+              </button>
+            </div>
+          </div>
+
+          {/* ⚠️ DANGER */}
+          <div className="settings-card danger-zone">
+            <h2><FaTrash /> {t('settings.dangerZone')}</h2>
+            
+            <div className="setting-item-row">
+              <span className="setting-label">{t('settings.deleteAccount')}</span>
+              <button 
+                onClick={handleDeleteAccount} 
+                className="btn-action danger"
+                disabled={isDeleting}
+              >
+                {isDeleting ? t('common.loading') : t('settings.delete')}
+              </button>
+            </div>
+            <p className="danger-warning">⚠️ {t('settings.irreversible')}</p>
           </div>
           
         </div>
 
+        {/* Footer */}
         <div className="settings-footer">
-            <button onClick={() => logout()} className="btn-logout-full">
-                <FaSignOutAlt /> Déconnexion Complète
-            </button>
+          <button onClick={savePreferences} className="btn-save">
+            <FaSave /> {t('settings.savePreferences')}
+          </button>
+          <button onClick={() => logout()} className="btn-logout-full">
+            <FaSignOutAlt /> {t('settings.fullLogout')}
+          </button>
         </div>
 
       </div>

@@ -3,21 +3,11 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Thème: Injection immédiate du thème depuis localStorage AVANT le rendu de React
-(() => {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-  }
-})();
-
-
 // Layouts & Contexts
 import { AuthProvider } from './contexts/AuthContext';
 import { LocationProvider } from './contexts/LocationContext';
 import { ItineraireProvider } from './contexts/ItineraireContext';
+import { ThemeProvider } from './contexts/ThemeContext'; // ← AJOUT
 
 import Layout from './components/layout/Layout'; 
 import AdminLayout from './components/layout/AdminLayout'; 
@@ -34,7 +24,6 @@ import BusDetail from './pages/BusDetail';
 import NearbyBuses from './pages/NearbyBuses'; 
 import CartePage from './components/Carte/CarteInteractive'; 
 import NotFound from './pages/NotFound'; 
-// 👇 IMPORT MANQUANT CORRIGÉ
 import HelpSupport from './pages/HelpSupport';
 import Settings from './pages/Settings'; 
 
@@ -60,57 +49,57 @@ import AdminUsers from './apps/admin/AdminUsers';
 
 function App() {
   return (
-    <AuthProvider>
-      <LocationProvider>
-        <ItineraireProvider>
-          <Routes>
-            
-            {/* --- ZONE CLIENT/PUBLIQUE (Layout général) --- */}
-            <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/transport" element={<Transport />} />
-              <Route path="/bus/:id" element={<BusDetail />} />
-              <Route path="/carte" element={<CartePage />} />
-              <Route path="/nearby" element={<NearbyBuses />} />
-              <Route path="/commentaires" element={<Commentaires />} />
+    <ThemeProvider> {/* ← AJOUT : Enveloppe tout */}
+      <AuthProvider>
+        <LocationProvider>
+          <ItineraireProvider>
+            <Routes>
               
-              {/* Nouvelle page Aide & Support */}
-              <Route path="/help" element={<HelpSupport />} /> 
-              <Route path="/settings" element={<Settings />} /> 
-              
-              {/* Pages Auth */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              {/* --- ZONE CLIENT/PUBLIQUE (Layout général) --- */}
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/transport" element={<Transport />} />
+                <Route path="/bus/:id" element={<BusDetail />} />
+                <Route path="/carte" element={<CartePage />} />
+                <Route path="/nearby" element={<NearbyBuses />} />
+                <Route path="/commentaires" element={<Commentaires />} />
+                
+                <Route path="/help" element={<HelpSupport />} /> 
+                <Route path="/settings" element={<Settings />} /> 
+                
+                {/* Pages Auth */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* Pages Nécessitant Connexion */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/profil" element={<Profil />} />
-                <Route path="/contribution" element={<Contribution />} />
+                {/* Pages Nécessitant Connexion */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/profil" element={<Profil />} />
+                  <Route path="/contribution" element={<Contribution />} />
+                </Route>
               </Route>
-            </Route>
 
-            {/* --- ZONE ADMIN (Protégée) --- */}
-            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-              
-              <Route index element={<AdminDashboard />} />
-              <Route path="bus" element={<AdminBusList />} />
-              <Route path="bus/new" element={<AdminBusForm />} />
-              <Route path="bus/:id" element={<AdminBusForm />} />
-              <Route path="commentaires" element={<AdminCommentaires />} />
-              <Route path="contributions" element={<AdminContributions />} />
-              <Route path="signalements" element={<AdminReports />} />
-              <Route path="utilisateurs" element={<AdminUsers />} />
-              <Route path="historiques" element={<AdminHistorique />} />
-            </Route>
+              {/* --- ZONE ADMIN (Protégée) --- */}
+              <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="bus" element={<AdminBusList />} />
+                <Route path="bus/new" element={<AdminBusForm />} />
+                <Route path="bus/:id" element={<AdminBusForm />} />
+                <Route path="commentaires" element={<AdminCommentaires />} />
+                <Route path="contributions" element={<AdminContributions />} />
+                <Route path="signalements" element={<AdminReports />} />
+                <Route path="utilisateurs" element={<AdminUsers />} />
+                <Route path="historiques" element={<AdminHistorique />} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
 
-          </Routes>
-        </ItineraireProvider>
-      </LocationProvider>
-    </AuthProvider>
+            </Routes>
+          </ItineraireProvider>
+        </LocationProvider>
+      </AuthProvider>
+    </ThemeProvider> 
   );
 }
 

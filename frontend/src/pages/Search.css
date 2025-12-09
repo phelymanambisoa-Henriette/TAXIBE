@@ -26,7 +26,7 @@
   font-weight: 800;
 }
 
-.text-highlight { color: #00D2A0; }
+.text-highlight { color: #01c6b2; }
 
 .page-header p { color: #6B7280; font-size: 1.1rem; }
 
@@ -91,7 +91,7 @@
 
 .search-card select:focus {
   background: white;
-  border-color: #00D2A0;
+  border-color: #01c6b2;
   box-shadow: 0 0 0 4px #E0FBF4;
 }
 
@@ -113,15 +113,15 @@
 }
 
 .btn-swap:hover {
-  background: #00D2A0;
+  background: #01c6b2;
   color: white;
-  border-color: #00D2A0;
+  border-color: #01c6b2;
   transform: rotate(180deg);
 }
 
 .btn-submit-search {
   width: 100%;
-  background: #00D2A0;
+  background: #01c6b2;
   color: white;
   padding: 16px;
   border-radius: 16px;
@@ -138,7 +138,7 @@
 }
 
 .btn-submit-search:hover {
-  background: #00A67E;
+  background: #01c6b2;
   transform: translateY(-2px);
 }
 
@@ -200,7 +200,7 @@
 }
 
 .bus-badge {
-  background: #00D2A0;
+  background: #01c6b2;
   color: white;
   font-weight: 800;
   font-size: 1.2rem;
@@ -266,8 +266,8 @@
 /* Bouton Map */
 .btn-map-view {
   background: transparent;
-  border: 1px solid #00D2A0;
-  color: #00D2A0;
+  border: 1px solid #01c6b2;
+  color: #01c6b2;
   padding: 10px 20px;
   border-radius: 30px;
   font-weight: 600;

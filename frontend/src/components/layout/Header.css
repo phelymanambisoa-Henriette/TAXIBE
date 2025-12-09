@@ -26,7 +26,7 @@
   transform: rotate(-5deg); box-shadow: 0 4px 10px rgba(0, 210, 160, 0.3);
 }
 .logo-text { font-size: 1.5rem; font-weight: 800; color: #1F2937; letter-spacing: -0.5px; }
-.logo-text .highlight { color: #00D2A0; }
+.logo-text .highlight { color: #01c6b2; }
 
 /* Nav */
 .header-nav { display: flex; gap: 30px; }
@@ -34,10 +34,10 @@
   text-decoration: none; color: #6B7280; font-weight: 600; font-size: 0.95rem;
   display: flex; align-items: center; gap: 8px; transition: color 0.2s; position: relative;
 }
-.nav-link:hover, .nav-link.active { color: #00D2A0; }
+.nav-link:hover, .nav-link.active { color: #01c6b2; }
 .nav-link.active::after {
   content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px;
-  background: #00D2A0; border-radius: 3px 3px 0 0;
+  background: #01c6b2; border-radius: 3px 3px 0 0;
 }
 
 /* Actions droite */
@@ -49,7 +49,7 @@
   background: transparent; border: none; color: #334155; font-size: 1.25rem; padding: 6px; border-radius: 6px;
   cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
-.client-help-btn:hover { color: #00A67E; }
+.client-help-btn:hover { color: #01c6b2; }
 
 /* Cloche notifications (icône pure, pas de bouton rond) */
 .client-notif-container { position: relative; }
@@ -57,7 +57,7 @@
   background: transparent; border: none; color: #334155; font-size: 1.25rem; padding: 6px; border-radius: 6px;
   cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
-.client-bell-btn:hover, .client-bell-btn.active { color: #00A67E; }
+.client-bell-btn:hover, .client-bell-btn.active { color: #01c6b2; }
 
 /* Badge + halo */
 .client-badge {
@@ -116,7 +116,7 @@
 .notification-card { padding: 15px 20px; border-bottom: 1px solid #F9FAFB; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; transition: background 0.2s; }
 .notification-card:hover { background: #F9FAFB; }
 .notification-card.unread { background: #F0FDF4; }
-.notification-status { width: 8px; height: 8px; background: #00D2A0; border-radius: 50%; margin-top: 6px; }
+.notification-status { width: 8px; height: 8px; background: #01c6b2; border-radius: 50%; margin-top: 6px; }
 .notification-card.read .notification-status { background: #D1D5DB; }
 .notification-info p { margin: 0 0 4px 0; font-size: 0.9rem; color: #374151; line-height: 1.4; }
 .notification-info span { font-size: 0.75rem; color: #9CA3AF; }
@@ -129,8 +129,8 @@
   background: white; border: 1px solid #E5E7EB; padding: 4px 12px 4px 4px; border-radius: 50px;
   display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;
 }
-.user-profile-toggle:hover, .user-profile-toggle.active { border-color: #00D2A0; box-shadow: 0 2px 8px rgba(0, 210, 160, 0.1); }
-.user-avatar { width: 32px; height: 32px; background: #00D2A0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden; }
+.user-profile-toggle:hover, .user-profile-toggle.active { border-color: #01c6b2; box-shadow: 0 2px 8px rgba(0, 210, 160, 0.1); }
+.user-avatar { width: 32px; height: 32px; background: #01c6b2; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden; }
 .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .user-name { font-weight: 600; font-size: 0.9rem; color: #374151; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .toggle-arrow { font-size: 1rem; color: #9CA3AF; }
@@ -144,7 +144,7 @@
 .menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #4B5563; text-decoration: none; font-size: 0.95rem; border-radius: 8px; transition: all 0.2s; background: transparent; border: none; width: 100%; text-align: left; font-weight: 500; cursor: pointer; }
 .menu-item:hover { background: #F3F4F6; color: #1F2937; }
 .item-icon { font-size: 1.2rem; color: #9CA3AF; }
-.menu-item:hover .item-icon { color: #00D2A0; }
+.menu-item:hover .item-icon { color: #01c6b2; }
 .menu-item.logout { color: #EF4444; }
 .menu-item.logout:hover { background: #FEF2F2; }
 .menu-item.logout .item-icon { color: #FCA5A5; }
@@ -155,7 +155,7 @@
 .btn-login { text-decoration: none; color: #1F2937; font-weight: 600; padding: 8px 16px; border-radius: 50px; transition: background .2s; }
 .btn-login:hover { background: #F3F4F6; }
 .btn-register { text-decoration: none; background: #1F2937; color: white; padding: 10px 24px; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform .2s, box-shadow .2s; }
-.btn-register:hover { background: #00D2A0; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 210, 160, 0.3); }
+.btn-register:hover { background: #01c6b2; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 210, 160, 0.3); }
 
 /* Responsive */
 @media (max-width: 768px) {

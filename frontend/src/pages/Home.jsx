@@ -92,7 +92,7 @@ const Home = () => {
             Votre voyage d'exploration <br />
             <span className="highlight-text">Commence Ici !</span>
           </h1>
-          <p className="hero-subtitle">Trouvez votre TaxiBe en temps réel partout à Tana.</p>
+          <p className="hero-subtitle">Trouvez votre TaxiBe en temps réel partout à Mada.</p>
           
           {isAuthenticated && (
             <div className="user-badge">
@@ -114,7 +114,7 @@ const Home = () => {
                 <label>TYPE</label>
                 <select className="input-clean">
                     <option>Bus (TaxiBe)</option>
-                    <option>Premium</option>
+                    <option>Collectif</option>
                 </select>
             </div>
 

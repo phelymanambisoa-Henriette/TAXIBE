@@ -27,9 +27,9 @@
 .bd-title-section { display: flex; align-items: center; gap: 15px; }
 
 .bd-bus-icon {
-  width: 60px; height: 60px; background: #00D2A0; color: white;
+  width: 60px; height: 60px; background: #01c6b2; color: white;
   border-radius: 16px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; box-shadow: 0 5px 15px rgba(0, 210, 160, 0.3);
+  font-size: 1.8rem; box-shadow: 0 5px 15px rgba(1, 198, 178, 0.3);
 }
 
 .bd-title-section h1 { margin: 0; font-size: 1.8rem; color: #1F2937; }
@@ -40,7 +40,7 @@
 
 .bd-header-actions { display: flex; align-items: center; gap: 15px; }
 .status-pill { padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; }
-.status-pill.active { background: #D1FAE5; color: #059669; }
+.status-pill.active { background: #D1FAE5; color: #01c6b2; }
 .status-pill.inactive { background: #FEE2E2; color: #DC2626; }
 
 /* ONGLETS */
@@ -49,7 +49,7 @@
   background: none; border: none; padding: 15px 5px; font-size: 1rem; font-weight: 600; color: #6B7280;
   cursor: pointer; border-bottom: 3px solid transparent; display: flex; align-items: center; gap: 8px;
 }
-.tab-btn.active { color: #00D2A0; border-bottom-color: #00D2A0; }
+.tab-btn.active { color: #01c6b2; border-bottom-color: #01c6b2; }
 
 /* CONTENU */
 .bd-content { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
@@ -63,7 +63,7 @@
 .info-row { display: flex; justify-content: space-around; text-align: center; }
 .info-block .label { display: block; font-size: 0.8rem; color: #9CA3AF; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
 .info-block .value { font-size: 1.2rem; font-weight: 800; color: #1F2937; }
-.info-block .value.highlight { color: #00D2A0; }
+.info-block .value.highlight { color: #01c6b2; }
 
 /* ARRÊTS */
 .stops-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
@@ -72,7 +72,7 @@
 .stops-column li { padding: 8px 0 8px 20px; position: relative; font-size: 0.95rem; color: #374151; }
 .stop-dot {
   position: absolute; left: -6px; top: 14px; width: 10px; height: 10px;
-  border-radius: 50%; background: #00D2A0; border: 2px solid white; box-shadow: 0 0 0 1px #00D2A0;
+  border-radius: 50%; background: #01c6b2; border: 2px solid white; box-shadow: 0 0 0 1px #01c6b2;
 }
 .stop-dot.red { background: #EF4444; box-shadow: 0 0 0 1px #EF4444; }
 

@@ -27,9 +27,9 @@
 }
 
 .sidebar-logo-img {
-  width: 100%;
-  max-width: 150px; /* Taille max de l'image */
-  height: 100%;
+  width: 500%;
+  max-width: 450px; /* Taille max de l'image */
+  height: 150%;
   object-fit: contain; /* Garde les proportions */
   display: block;
 }
@@ -68,14 +68,14 @@
   color: #1F2937;
   transform: translateX(3px);
 }
-.sidebar-link:hover .link-icon { color: #00D2A0; }
+.sidebar-link:hover .link-icon { color: #01c6b2; }
 
 /* Actif */
 .sidebar-link.active {
   background-color: #E0FBF4;
-  color: #00D2A0;
+  color: #01c6b2;
 }
-.sidebar-link.active .link-icon { color: #00D2A0; }
+.sidebar-link.active .link-icon { color: #01c6b2; }
 
 /* Admin */
 .sidebar-divider { height: 1px; background-color: #E5E7EB; margin: 10px 0; }

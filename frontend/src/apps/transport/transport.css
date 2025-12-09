@@ -22,7 +22,7 @@
   margin-bottom: 10px;
 }
 
-.highlight { color: #00D2A0; }
+.highlight { color: #01c6b2; }
 .transport-header p { color: #6B7280; font-size: 1.1rem; }
 
 /* BARRE DE CONTRÔLE FLOTTANTE */
@@ -76,13 +76,13 @@
   transition: all 0.2s;
 }
 
-.filter-pill:hover { border-color: #00D2A0; color: #00D2A0; }
+.filter-pill:hover { border-color: #01c6b2; color: #01c6b2; }
 
 .filter-pill.active {
-  background: #00D2A0;
+  background: #01c6b2;
   color: white;
-  border-color: #00D2A0;
-  box-shadow: 0 4px 10px rgba(0, 210, 160, 0.3);
+  border-color: #01c6b2;
+  box-shadow: 0 4px 10px rgba(1, 198, 178, 0.3);
 }
 
 /* Toggle Vue */
@@ -97,7 +97,7 @@
   display: flex; align-items: center;
 }
 
-.view-icon.active { background: white; color: #00D2A0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.view-icon.active { background: white; color: #01c6b2; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
 /* --- GRILLE (Style Home Shibux) --- */
 .buses-container.grid {
@@ -123,20 +123,20 @@
   height: 130px; background: linear-gradient(135deg, #E0FBF4 0%, #ffffff 100%);
   position: relative; display: flex; align-items: center; justify-content: center;
 }
-.card-icon-overlay { font-size: 6rem; color: rgba(0, 210, 160, 0.08); position: absolute; right: -10px; bottom: -10px; transform: rotate(-15deg); }
+.card-icon-overlay { font-size: 6rem; color: rgba(1, 198, 178, 0.08); position: absolute; right: -10px; bottom: -10px; transform: rotate(-15deg); }
 .bus-number {
-  background-color: #00D2A0; color: white; font-size: 1.8rem; font-weight: 800;
+  background-color: #01c6b2; color: white; font-size: 1.8rem; font-weight: 800;
   padding: 10px 25px; border-radius: 20px; z-index: 2;
-  box-shadow: 0 8px 20px rgba(0, 210, 160, 0.4);
+  box-shadow: 0 8px 20px rgba(1, 198, 178, 0.4);
 }
 .card-body { padding: 25px; display: flex; flex-direction: column; gap: 15px; }
 .route-line { display: flex; align-items: center; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: #1F2937; }
 .city { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%; }
-.separator { color: #00D2A0; font-size: 1.2rem; }
+.separator { color: #01c6b2; font-size: 1.2rem; }
 .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #E5E7EB; padding-top: 15px; margin-top: 5px; }
 .status-dot { font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .status-dot::before { content: ''; width: 10px; height: 10px; border-radius: 50%; display: block; }
-.status-dot.on { color: #10B981; } .status-dot.on::before { background-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+.status-dot.on { color: #01c6b2; } .status-dot.on::before { background-color: #01c6b2; box-shadow: 0 0 0 3px rgba(1, 198, 178, 0.2); }
 .status-dot.off { color: #9CA3AF; } .status-dot.off::before { background-color: #9CA3AF; }
 .price-tag { background-color: #F3F4F6; padding: 6px 14px; border-radius: 10px; font-weight: 700; color: #374151; font-size: 0.9rem; }
 
@@ -155,17 +155,17 @@
 .bus-card-list:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.06); border-left: 4px solid #00D2A0; }
 
 .list-left .bus-badge-list {
-  background: #E0FBF4; color: #00D2A0; font-weight: 800; font-size: 1.2rem;
+  background: #E0FBF4; color: #01c6b2; font-weight: 800; font-size: 1.2rem;
   padding: 8px 15px; border-radius: 12px;
 }
 
 .list-center { flex: 1; margin: 0 30px; }
 .list-center .route-text { font-weight: 700; color: #1F2937; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
-.list-center .arrow-icon { color: #00D2A0; }
+.list-center .arrow-icon { color: #01c6b2; }
 .list-center .status-text { font-size: 0.85rem; color: #6B7280; margin-top: 5px; display: flex; align-items: center; gap: 6px; }
 
 .list-right .btn-details {
-  color: #00D2A0; font-weight: 700; font-size: 0.9rem;
+  color: #01c6b2; font-weight: 700; font-size: 0.9rem;
 }
 
 /* --- PAGINATION --- */
@@ -176,7 +176,7 @@
   display: flex; align-items: center; justify-content: center; font-weight: 700;
   transition: all 0.2s;
 }
-.page-arrow:hover:not(:disabled) { background: #00D2A0; color: white; border-color: #00D2A0; }
+.page-arrow:hover:not(:disabled) { background: #01c6b2; color: white; border-color: #01c6b2; }
 .page-arrow:disabled { opacity: 0.5; cursor: not-allowed; }
 .page-info { font-weight: 600; color: #6B7280; }
 

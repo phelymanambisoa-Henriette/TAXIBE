@@ -35,7 +35,7 @@
 }
 
 .highlight-text {
-  color: #00D2A0; /* Vert Shibux */
+  color: #01c6b2; /* Vert Shibux */
 }
 
 .hero-subtitle {
@@ -106,7 +106,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #00D2A0;
+  background-color: #01c6b2;
   color: white;
   width: 55px; /* Taille fixe */
   height: 55px; /* Taille fixe */
@@ -120,7 +120,7 @@
 
 .btn-search-circle:hover {
   transform: scale(1.05);
-  background-color: #00A67E;
+  background-color: #01c6b2;
 }
 
 /* --- 3. STATS (Alignement horizontal) --- */
@@ -230,7 +230,7 @@
 
 /* Lien "Explorer" */
 .link-arrow {
-  color: #00D2A0; /* Vert Shibux */
+  color: #01c6b2; /* Vert Shibux */
   font-weight: 700;
   text-decoration: none;
   display: flex;
@@ -242,7 +242,7 @@
 
 .link-arrow:hover {
   gap: 12px; /* Animation petite flèche */
-  color: #00A67E;
+  color: #01c6b2;
 }
 
 /* --- 6. GRILLE (Mise en page horizontale) --- */
@@ -295,7 +295,7 @@
 
 /* Le numéro du bus (Badge vert) */
 .bus-number {
-  background-color: #00D2A0;
+  background-color: #01c6b2;
   color: white;
   font-size: 1.8rem;
   font-weight: 800;
@@ -331,7 +331,7 @@
 }
 
 .separator {
-  color: #00D2A0;
+  color: #01c6b2;
   font-size: 1.2rem;
 }
 
@@ -362,8 +362,8 @@
   display: block;
 }
 
-.status-dot.on { color: #10B981; } /* Vert */
-.status-dot.on::before { background-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+.status-dot.on { color: #01c6b2; } /* Vert */
+.status-dot.on::before { background-color: #01c6b2; box-shadow: 0 0 0 3px rgba(1, 198, 178, 0.2); }
 
 .status-dot.off { color: #9CA3AF; } /* Gris */
 .status-dot.off::before { background-color: #9CA3AF; }

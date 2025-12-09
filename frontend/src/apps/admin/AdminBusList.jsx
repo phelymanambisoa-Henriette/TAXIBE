@@ -3,144 +3,260 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { transportService } from '../../services/transportService';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaBus, FaSearch, FaPlus, FaEdit, FaTrash, FaSync } from 'react-icons/fa';
+import { 
+  FaBus, FaSearch, FaPlus, FaEdit, FaTrash, FaSync, 
+  FaMapMarkerAlt, FaMoneyBillWave, FaRoute, FaEye,
+  FaCheckCircle, FaTimesCircle, FaFilter
+} from 'react-icons/fa';
+import './AdminBusList.css';
 
 const AdminBusList = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const deny =
-    !!user &&
-    user.is_staff === false &&
-    user.is_superuser !== true &&
-    user.is_staf !== true &&
-    user.isSuperuser !== true;
+  
+  const hasAccess = user && (
+    user.is_staff === true || 
+    user.is_superuser === true ||
+    user.role === 'admin'
+  );
 
   const [buses, setBuses] = useState([]);
-  const [q, setQ] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ show: false, type: 'success', text: '' });
 
-  const showToast = (text, type = 'success', duration = 1800) => {
+  const showToast = (text, type = 'success', duration = 2500) => {
     setToast({ show: true, type, text });
     setTimeout(() => setToast({ show: false, type, text: '' }), duration);
   };
 
-  const load = async () => {
+  const loadBuses = async () => {
     setLoading(true);
     try {
       const res = await transportService.getAllBuses();
-      setBuses(res.data || []);
+      const data = res.data?.results || res.data || [];
+      setBuses(Array.isArray(data) ? data : []);
     } catch (e) {
-      showToast("Impossible de charger les bus", 'error', 2200);
+      console.error('Erreur chargement bus:', e);
+      showToast("Impossible de charger les bus", 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { 
+    if (hasAccess) loadBuses(); 
+  }, [hasAccess]);
 
-  const filtered = useMemo(() => {
-    const qq = q.trim().toLowerCase();
-    if (!qq) return buses;
-    return (buses || []).filter(b => {
-      const num = String(b.numeroBus || b.numero || '').toLowerCase();
-      const typ = String(b.typeTrajet || '').toLowerCase();
-      const st = String(b.status || '').toLowerCase();
-      return num.includes(qq) || typ.includes(qq) || st.includes(qq);
+  // Filtrage
+  const filteredBuses = useMemo(() => {
+    return buses.filter(bus => {
+      const num = String(bus.numeroBus || bus.numero || '').toLowerCase();
+      const status = String(bus.status || '').toLowerCase();
+      const primus = String(bus.primus_nom || '').toLowerCase();
+      const terminus = String(bus.terminus_nom || '').toLowerCase();
+      
+      const matchSearch = !searchQuery || 
+        num.includes(searchQuery.toLowerCase()) ||
+        primus.includes(searchQuery.toLowerCase()) ||
+        terminus.includes(searchQuery.toLowerCase());
+      
+      const matchStatus = !statusFilter || status === statusFilter.toLowerCase();
+      
+      return matchSearch && matchStatus;
     });
-  }, [buses, q]);
+  }, [buses, searchQuery, statusFilter]);
 
-  const remove = async (id) => {
-    if (deny) return showToast('Accès refusé', 'error', 1800);
-    if (!window.confirm('Supprimer ce bus ?')) return;
+  // Statistiques
+  const stats = useMemo(() => ({
+    total: buses.length,
+    actifs: buses.filter(b => (b.status || '').toLowerCase() === 'actif').length,
+    inactifs: buses.filter(b => (b.status || '').toLowerCase() === 'inactif').length,
+    maintenance: buses.filter(b => (b.status || '').toLowerCase() === 'maintenance').length,
+  }), [buses]);
+
+  const handleDelete = async (id, numero) => {
+    if (!window.confirm(`Supprimer le bus "${numero}" ? Cette action est irréversible.`)) return;
+    
     try {
       await transportService.deleteBus(id);
-      showToast('Bus supprimé ✅');
-      load();
+      showToast(`Bus ${numero} supprimé avec succès`);
+      loadBuses();
     } catch (e) {
-      showToast('Erreur lors de la suppression', 'error', 2200);
+      console.error('Erreur suppression:', e);
+      showToast('Erreur lors de la suppression', 'error');
     }
   };
 
-  if (deny) {
+  const getStatusBadge = (status) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'actif') return <span className="status-badge active"><FaCheckCircle /> Actif</span>;
+    if (s === 'inactif') return <span className="status-badge inactive"><FaTimesCircle /> Inactif</span>;
+    if (s === 'maintenance') return <span className="status-badge maintenance">🔧 Maintenance</span>;
+    return <span className="status-badge">{status || '-'}</span>;
+  };
+
+  if (!hasAccess) {
     return (
-      <div className="container" style={{ padding: 20 }}>
-        <h1>🔐 Accès refusé</h1>
-        <p>Réservé aux administrateurs.</p>
+      <div className="admin-denied">
+        <h2>🔐 Accès refusé</h2>
+        <p>Cette page est réservée aux administrateurs.</p>
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ padding: 20 }}>
-      <h1>Gestion des bus</h1>
+    <div className="admin-bus-list">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-content">
+          <h1><FaBus /> Gestion des Bus</h1>
+          <p>Gérez la flotte de bus TaxiBe</p>
+        </div>
+        <button
+          className="btn-primary btn-new-bus"
+          onClick={() => navigate('/admin/bus/new')}
+        >
+          <FaPlus /> Nouveau Bus
+        </button>
+      </div>
 
+      {/* Toast */}
       {toast.show && (
-        <div style={toastStyle(toast.type)}>{toast.text}</div>
+        <div className={`toast ${toast.type}`}>
+          {toast.type === 'success' ? <FaCheckCircle /> : <FaTimesCircle />}
+          {toast.text}
+        </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center', margin: '12px 0' }}>
-        <label style={searchWrap}>
+      {/* Statistiques */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon total"><FaBus /></div>
+          <div className="stat-info">
+            <span className="stat-value">{stats.total}</span>
+            <span className="stat-label">Total</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon active"><FaCheckCircle /></div>
+          <div className="stat-info">
+            <span className="stat-value">{stats.actifs}</span>
+            <span className="stat-label">Actifs</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon inactive"><FaTimesCircle /></div>
+          <div className="stat-info">
+            <span className="stat-value">{stats.inactifs}</span>
+            <span className="stat-label">Inactifs</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="toolbar">
+        <div className="search-field">
           <FaSearch />
           <input
-            placeholder="Recherche (numéro, type, statut)"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            style={searchInput}
+            type="text"
+            placeholder="Rechercher (numéro, trajet...)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </label>
+        </div>
 
-        <button onClick={() => navigate('/admin/bus/new')} className="btn-submit" style={{ padding: '10px 14px' }}>
-          <FaPlus /> Nouveau bus
-        </button>
+        <div className="filter-field">
+          <FaFilter />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">Tous les statuts</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+        </div>
 
-        <button onClick={load} className="btn-secondary" style={{ padding: '10px 14px', marginLeft: 'auto' }}>
+        <button className="btn-refresh" onClick={loadBuses}>
           <FaSync /> Actualiser
         </button>
       </div>
 
-      <div style={cardWrap}>
+      {/* Liste des bus */}
+      <div className="bus-table-card">
         {loading ? (
-          <div className="card">Chargement…</div>
-        ) : filtered.length === 0 ? (
-          <div className="card">Aucun bus.</div>
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Chargement des bus...</p>
+          </div>
+        ) : filteredBuses.length === 0 ? (
+          <div className="empty-state">
+            <FaBus />
+            <p>Aucun bus trouvé</p>
+            {searchQuery && <span>Essayez une autre recherche</span>}
+          </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="table-wrapper">
+            <table className="bus-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
-                  <th style={th}>#</th>
-                  <th style={th}><FaBus /> Numéro</th>
-                  <th style={th}>Frais</th>
-                  <th style={th}>Statut</th>
-                  <th style={th}>Trajets</th>
-                  <th style={th} />
+                <tr>
+                  <th>#</th>
+                  <th><FaBus /> Numéro</th>
+                  <th><FaRoute /> Trajet</th>
+                  <th><FaMoneyBillWave /> Tarif</th>
+                  <th>Statut</th>
+                  <th><FaMapMarkerAlt /> Arrêts</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((b, i) => (
-                  <tr key={b.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={td}>{i + 1}</td>
-                    <td style={td}>{b.numeroBus || b.numero || '-'}</td>
-                    <td style={td}>
-                      {b.frais != null ? `${b.frais} Ar` : '-'}
+                {filteredBuses.map((bus, index) => (
+                  <tr key={bus.id} className={bus.status?.toLowerCase() === 'inactif' ? 'inactive-row' : ''}>
+                    <td className="index-cell">{index + 1}</td>
+                    <td className="numero-cell">
+                      <span className="bus-numero">{bus.numeroBus || bus.numero || '-'}</span>
                     </td>
-                    <td style={td}>{b.status || '-'}</td>
-                    <td style={td}>{b.trajetCount ?? b.trajets?.length ?? '-'}</td>
-                    <td style={{ ...td, whiteSpace: 'nowrap', textAlign: 'right' }}>
+                    <td className="trajet-cell">
+                      <div className="trajet-info">
+                        <span className="trajet-depart">{bus.primus_nom || 'Départ'}</span>
+                        <span className="trajet-arrow">→</span>
+                        <span className="trajet-arrivee">{bus.terminus_nom || 'Arrivée'}</span>
+                      </div>
+                    </td>
+                    <td className="tarif-cell">
+                      {bus.frais != null ? (
+                        <span className="tarif">{bus.frais} Ar</span>
+                      ) : '-'}
+                    </td>
+                    <td className="status-cell">
+                      {getStatusBadge(bus.status)}
+                    </td>
+                    <td className="arrets-cell">
+                      <span className="arrets-count">
+                        {bus.trajetCount ?? bus.trajets?.length ?? '-'} trajets
+                      </span>
+                    </td>
+                    <td className="actions-cell">
                       <button
-                        onClick={() => navigate(`/admin/bus/${b.id}`)}
-                        className="btn-secondary"
-                        style={{ padding: '6px 10px', marginRight: 6 }}
+                        className="btn-icon view"
+                        onClick={() => navigate(`/bus/${bus.id}`)}
+                        title="Voir détails"
                       >
-                        <FaEdit /> Éditer
+                        <FaEye />
                       </button>
                       <button
-                        onClick={() => remove(b.id)}
-                        className="btn-delete"
-                        style={{ padding: '6px 10px' }}
+                        className="btn-icon edit"
+                        onClick={() => navigate(`/admin/bus/${bus.id}`)}
+                        title="Modifier"
                       >
-                        <FaTrash /> Supprimer
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="btn-icon delete"
+                        onClick={() => handleDelete(bus.id, bus.numeroBus || bus.numero)}
+                        title="Supprimer"
+                      >
+                        <FaTrash />
                       </button>
                     </td>
                   </tr>
@@ -149,56 +265,16 @@ const AdminBusList = () => {
             </table>
           </div>
         )}
+
+        {/* Footer avec compteur */}
+        {!loading && filteredBuses.length > 0 && (
+          <div className="table-footer">
+            <span>{filteredBuses.length} bus affichés sur {buses.length}</span>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-const toastStyle = (type) => ({
-  position: 'fixed',
-  top: 20,
-  right: 20,
-  zIndex: 99999,
-  minWidth: 260,
-  maxWidth: 520,
-  padding: '12px 14px',
-  borderRadius: 10,
-  color: '#fff',
-  boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-  background:
-    type === 'success'
-      ? 'linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95))'
-      : 'linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95))',
-});
-
-const cardWrap = {
-  background: 'var(--bg-card)',
-  border: '1px solid var(--border-color)',
-  borderRadius: 12,
-  padding: 12,
-  boxShadow: 'var(--shadow-sm)',
-  minHeight: 120,
-};
-
-const th = { padding: '10px 8px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' };
-const td = { padding: '10px 8px', color: 'var(--text-primary)' };
-
-const searchWrap = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 8,
-  background: 'var(--bg-secondary)',
-  border: '2px solid var(--border-color)',
-  borderRadius: 8,
-  padding: '0 12px',
-};
-const searchInput = {
-  width: 260,
-  padding: '10px 6px',
-  border: 'none',
-  outline: 'none',
-  background: 'transparent',
-  color: 'var(--text-primary)',
 };
 
 export default AdminBusList;

@@ -88,12 +88,6 @@ const Header = () => {
     <header className="header">
       <div className="header-container">
         
-        {/* LOGO */}
-        <Link to="/" className="header-logo">
-          <div className="logo-icon"><FaBus /></div>
-          <span className="logo-text">Taxi<span className="highlight">Be</span></span>
-        </Link>
-
         {/* NAVIGATION */}
         <nav className="header-nav">
           <Link to="/" className={`nav-link ${isActive('/')}`}>
@@ -142,12 +136,6 @@ const Header = () => {
                 {showSettingsMenu && (
                   <div className="client-settings-panel">
                     {/* Les actions spécifiques du menu 3 points */}
-                    <button className="settings-item" onClick={() => handleSettingsAction('theme')}>
-                      <FaSun /> / <FaMoon /> Basculer Thème
-                    </button>
-                    <button className="settings-item" onClick={() => handleSettingsAction('cache')}>
-                      <HiCog /> Nettoyer cache local
-                    </button>
                     <Link className="settings-item" to="/settings" onClick={() => handleSettingsAction('/settings')}>
                       <HiCog /> Préférences
                     </Link>

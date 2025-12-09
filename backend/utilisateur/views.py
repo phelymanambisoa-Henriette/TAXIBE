@@ -1,10 +1,12 @@
-from rest_framework import viewsets, generics, permissions
+# utilisateur/views.py (CORRIGÉ - SANS DOUBLON)
+
+from rest_framework import viewsets, generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.parsers import MultiPartParser, JSONParser
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
+from rest_framework.decorators import api_view, permission_classes, action
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
 from .models import Utilisateur
 from .serializers import (
@@ -15,84 +17,225 @@ from .serializers import (
 
 User = get_user_model()
 
+
 # ============================
 # 👤 1. Vue /utilisateur/me/
 # ============================
 class MeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
+        """Récupérer le profil de l'utilisateur connecté"""
         try:
             profile, created = Utilisateur.objects.get_or_create(
                 user=request.user,
-                defaults={
-                    'username': request.user.username,
-                    'email': request.user.email,
-                }
+                defaults={'nom': request.user.username}
             )
-            serializer = UtilisateurSerializer(profile)
+            
+            serializer = UtilisateurSerializer(profile, context={'request': request})
             data = serializer.data
+            
+            data['id'] = request.user.id
+            data['username'] = request.user.username
+            data['email'] = request.user.email
             data['is_staff'] = request.user.is_staff
             data['is_superuser'] = request.user.is_superuser
+            
+            if profile.avatar:
+                data['avatar'] = request.build_absolute_uri(profile.avatar.url)
+            
             return Response(data)
+            
         except Exception as e:
-            print("❌ Erreur /me :", str(e))
+            print("❌ Erreur GET /me :", str(e))
+            import traceback
+            traceback.print_exc()
             return Response({'error': str(e)}, status=500)
 
+    def patch(self, request):
+        """Mettre à jour le profil"""
+        try:
+            profile, created = Utilisateur.objects.get_or_create(
+                user=request.user,
+                defaults={'nom': request.user.username}
+            )
+            
+            serializer = UtilisateurSerializer(
+                profile, 
+                data=request.data, 
+                partial=True,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            
+            user = request.user
+            if 'username' in request.data:
+                user.username = request.data['username']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            user.save()
+            
+            profile.refresh_from_db()
+            
+            updated_data = UtilisateurSerializer(profile, context={'request': request}).data
+            updated_data['id'] = user.id
+            updated_data['username'] = user.username
+            updated_data['email'] = user.email
+            updated_data['is_staff'] = user.is_staff
+            updated_data['is_superuser'] = user.is_superuser
+            
+            if profile.avatar:
+                updated_data['avatar'] = request.build_absolute_uri(profile.avatar.url)
+            
+            return Response(updated_data, status=200)
+            
+        except Exception as e:
+            print("❌ Erreur PATCH /me :", str(e))
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=500)
+
+    def put(self, request):
+        return self.patch(request)
+
+
 # ============================
-# 🟢 2. Vue RegisterView
+# 🔄 2. UpdateProfileView
+# ============================
+class UpdateProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def patch(self, request):
+        try:
+            profile, _ = Utilisateur.objects.get_or_create(
+                user=request.user,
+                defaults={'nom': request.user.username}
+            )
+            
+            serializer = UtilisateurSerializer(
+                profile, 
+                data=request.data, 
+                partial=True,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            
+            user = request.user
+            if 'username' in request.data:
+                user.username = request.data['username']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            user.save()
+            
+            data = serializer.data
+            data['username'] = user.username
+            data['email'] = user.email
+            
+            if profile.avatar:
+                data['avatar'] = request.build_absolute_uri(profile.avatar.url)
+            
+            return Response(data, status=200)
+            
+        except Exception as e:
+            print("❌ Erreur UpdateProfileView:", str(e))
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=500)
+
+    def put(self, request):
+        return self.patch(request)
+
+
+# ============================
+# 📊 3. Vue Stats (UNE SEULE FOIS)
+# ============================
+class UserStatsView(APIView):
+    """Vue pour les statistiques utilisateur"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            profile = Utilisateur.objects.filter(user=request.user).first()
+            
+            favoris_count = 0
+            contributions_count = 0
+            commentaires_count = 0
+            
+            try:
+                from interaction.models import Favori, Contribution, Commentaire
+                
+                try:
+                    favoris_count = Favori.objects.filter(utilisateurRef=request.user).count()
+                except:
+                    pass
+                    
+                try:
+                    contributions_count = Contribution.objects.filter(utilisateurRef=request.user).count()
+                except:
+                    pass
+                    
+                try:
+                    commentaires_count = Commentaire.objects.filter(utilisateurRef=request.user).count()
+                except:
+                    pass
+                    
+            except Exception as e:
+                print(f"⚠️ Erreur import interaction models: {e}")
+            
+            return Response({
+                'reputation': profile.reputation if profile else 0,
+                'favoris_count': favoris_count,
+                'contributions_count': contributions_count,
+                'commentaires_count': commentaires_count,
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur stats view: {e}")
+            return Response({
+                'reputation': 0,
+                'favoris_count': 0,
+                'contributions_count': 0,
+                'commentaires_count': 0,
+            })
+
+
+# ============================
+# 🟢 4. RegisterView
 # ============================
 class RegisterView(generics.CreateAPIView):
-    """
-    Permet à un utilisateur de s'inscrire.
-    - Accepte : JSON ou FormData
-    - Utilise le serializer UserRegistrationSerializer
-    """
     queryset = Utilisateur.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
-    parser_classes = [MultiPartParser, JSONParser]  # Avatar / fichiers compatibles
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
 
 # ============================
-# 🔄 3. Mise à jour du profil
+# 🔐 5. ChangePasswordView
 # ============================
-class UpdateProfileView(generics.GenericAPIView):
-    serializer_class = UtilisateurSerializer
+class ChangePasswordView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, JSONParser]
 
-    def get_object(self):
-        return self.request.user.profile
+    def post(self, request):
+        serializer = PasswordChangeSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'message': 'Mot de passe changé avec succès.'}, status=200)
+        
+        return Response(serializer.errors, status=400)
 
-    def patch(self, request, *args, **kwargs):
-        profile = self.get_object()
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        return Response(UtilisateurSerializer(instance).data, status=200)
-
-
-# ============================
-# 🔐 4. Changement mot de passe
-# ============================
-class ChangePasswordView(generics.UpdateAPIView):
-    serializer_class = PasswordChangeSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ['post']
-
-    def get_object(self):
-        return self.request.user
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = self.get_object()
-        user.set_password(serializer.validated_data['new_password'])
-        user.save()
-        return Response({'message': 'Mot de passe changé avec succès.'}, status=200)
 
 # ============================
-# ✅ 5. Profile "upsert" automatique
+# ✅ 6. Ensure Profile
 # ============================
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -101,19 +244,85 @@ def ensure_profile_view(request):
         user = request.user
         profil, created = Utilisateur.objects.get_or_create(
             user=user,
-            defaults={
-                'username': user.username,
-                'email': user.email
-            }
+            defaults={'nom': user.username}
         )
         return Response({'message': 'Profil assuré.', 'created': created}, status=200)
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+
 # ============================
-# 🌐 6. Admin ViewSet (CRUD)
+# 🌐 7. Admin ViewSet
 # ============================
+
 class UtilisateurViewSet(viewsets.ModelViewSet):
-    queryset = Utilisateur.objects.all()
+    queryset = Utilisateur.objects.select_related('user').all()
     serializer_class = UtilisateurSerializer
     permission_classes = [permissions.IsAdminUser]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        params = self.request.query_params
+        q = params.get('q')
+        role = params.get('role')
+        active = params.get('active')
+        staff = params.get('staff')
+
+        if q:
+            qs = qs.filter(
+                Q(user__username__icontains=q) |
+                Q(user__email__icontains=q) |
+                Q(nom__icontains=q)
+            )
+
+        if role:
+            qs = qs.filter(role__iexact=role)
+
+        if active in ('true', 'false'):
+            is_active = active == 'true'
+            qs = qs.filter(user__is_active=is_active)
+
+        if staff in ('true', 'false'):
+            is_staff = staff == 'true'
+            qs = qs.filter(user__is_staff=is_staff)
+
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def toggle_active(self, request, pk=None):
+        profil = self.get_object()
+        user = profil.user
+        user.is_active = not user.is_active
+        user.save()
+        return Response({'id': user.id, 'is_active': user.is_active})
+
+    @action(detail=True, methods=['post'])
+    def toggle_staff(self, request, pk=None):
+        profil = self.get_object()
+        user = profil.user
+        user.is_staff = not user.is_staff
+        user.save()
+        return Response({'id': user.id, 'is_staff': user.is_staff})
+
+    @action(detail=True, methods=['post'])
+    def set_role(self, request, pk=None):
+        profil = self.get_object()
+        role = request.data.get('role', 'user')
+        profil.role = role
+        profil.save()
+        return Response({'id': profil.user.id, 'role': profil.role})
+
+    @action(detail=True, methods=['post'])
+    def reset_password(self, request, pk=None):
+        profil = self.get_object()
+        user = profil.user
+        temp_password = User.objects.make_random_password()
+        user.set_password(temp_password)
+        user.save()
+        return Response({'id': user.id, 'temp_password': temp_password})

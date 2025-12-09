@@ -57,14 +57,14 @@
 }
 
 .ac-tab-btn:hover {
-  border-color: #00D2A0;
-  color: #00D2A0;
+  border-color: #01c6b2;
+  color: #01c6b2;
 }
 
 .ac-tab-btn.active {
-  background: #00D2A0;
+  background: #01c6b2;
   color: white;
-  border-color: #00D2A0;
+  border-color: #01c6b2;
 }
 
 .ac-tab-btn.active .tab-count {
@@ -223,11 +223,11 @@
 }
 
 .btn-approve {
-  background: #10B981;
+  background: #01c6b2;
   color: white;
 }
 .btn-approve:hover {
-  background: #059669;
+  background: #01c6b2;
 }
 
 .btn-reject {
@@ -263,7 +263,7 @@
   animation: acToastIn 0.2s ease-out;
 }
 .ac-toast.success {
-  background: linear-gradient(135deg, #16A34A, #22C55E);
+  background: linear-gradient(135deg, #01c6b2, #01c6b2);
 }
 .ac-toast.error {
   background: linear-gradient(135deg, #DC2626, #EF4444);
