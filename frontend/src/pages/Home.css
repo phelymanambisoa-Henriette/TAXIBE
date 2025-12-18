@@ -1,26 +1,63 @@
-/* src/pages/Home.css - VERSION CORRIGÉE */
+/* ========= VARIABLES ========= */
+:root {
+  --color-primary: #01c6b2;
+  --color-primary-dark: #009786;
+  --color-primary-light: #4be1d4;
+  --bg-main: #F2F7F6;        /* fond Shibux */
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+  --text-primary: #1F2937;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+}
 
 /* Reset local pour être sûr que les marges ne cassent pas tout */
-.home * {
+.home-page * {
   box-sizing: border-box;
 }
 
-.home {
-  background-color: #F2F7F6; /* Couleur de fond Shibux */
+/* Conteneur global de la page Home.jsx */
+.home-page {
+  background-color: var(--bg-main);
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif;
+  padding-bottom: 40px;
 }
 
-/* --- 1. HERO SECTION (Centrage forcé) --- */
+/* ====== LOADING ====== */
+.home-loading {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.home-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin-home 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin-home {
+  to { transform: rotate(360deg); }
+}
+
+/* ====== HERO SECTION (centrage) ====== */
 .hero-section {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centre horizontalement */
+  align-items: center;    /* centre horizontalement */
   justify-content: center;
-  text-align: center; /* Centre le texte */
-  padding: 60px 20px 80px; /* Plus d'espace en bas */
+  text-align: center;     /* centre le texte */
+  padding: 60px 20px 80px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -35,7 +72,7 @@
 }
 
 .highlight-text {
-  color: #01c6b2; /* Vert Shibux */
+  color: var(--color-primary);
 }
 
 .hero-subtitle {
@@ -44,20 +81,32 @@
   margin-bottom: 30px;
 }
 
-/* --- 2. BARRE DE RECHERCHE FLOTTANTE (Le correctif majeur) --- */
+/* USER BADGE */
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4B5563;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+/* ====== BARRE DE RECHERCHE FLOTTANTE ====== */
 .search-bar-floating {
-  display: flex !important; /* Force l'affichage en ligne */
-  flex-direction: row !important; /* Force l'horizontal */
+  display: flex !important;             /* Force l'affichage en ligne */
+  flex-direction: row !important;       /* Force l'horizontal */
   align-items: center;
   justify-content: space-between;
-  
   background: #ffffff;
   padding: 10px 15px;
-  border-radius: 50px; /* Forme de pilule */
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08); /* Grosse ombre douce */
-  
+  border-radius: 50px;                  /* Forme de pilule */
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
   width: 100%;
-  max-width: 800px; /* Largeur max pour ne pas être trop large */
+  max-width: 800px;                     /* Largeur max pour ne pas être trop large */
   border: 1px solid rgba(0,0,0,0.02);
   margin-top: 20px;
 }
@@ -66,9 +115,9 @@
 .search-input-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Aligne le texte à gauche DANS le groupe */
+  align-items: flex-start;
   padding: 5px 20px;
-  flex: 1; /* Prend toute la place disponible */
+  flex: 1;
 }
 
 .search-input-group label {
@@ -82,7 +131,7 @@
 
 /* Nettoyage des styles par défaut des inputs */
 .input-clean {
-  border: none !important; /* Enlève la bordure grise */
+  border: none !important;
   background: transparent !important;
   outline: none !important;
   font-size: 1rem;
@@ -91,6 +140,10 @@
   width: 100%;
   padding: 0;
   margin: 0;
+}
+
+.input-clean::placeholder {
+  color: #9CA3AF;
 }
 
 /* Ligne de séparation verticale */
@@ -106,28 +159,77 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #01c6b2;
+  background-color: var(--color-primary);
   color: white;
-  width: 55px; /* Taille fixe */
-  height: 55px; /* Taille fixe */
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   border: none;
   box-shadow: 0 4px 15px rgba(0, 210, 160, 0.4);
   transition: transform 0.2s;
   text-decoration: none;
-  flex-shrink: 0; /* Empêche le bouton d'être écrasé */
+  flex-shrink: 0;
 }
 
 .btn-search-circle:hover {
   transform: scale(1.05);
-  background-color: #01c6b2;
+  background-color: var(--color-primary);
 }
 
-/* --- 3. STATS (Alignement horizontal) --- */
+/* ====== BOUTON GÉOLOCALISATION ====== */
+.btn-location-link {
+  margin-top: 40px;
+  border: none;
+  background: #ffffff;
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+.btn-location-link:hover:not(:disabled) {
+  background: #ecfeff;
+  transform: translateY(-1px);
+}
+
+.btn-location-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.location-info {
+  margin-top: 44px;
+  font-size: 0.8rem;
+  color: #4B5563;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* ====== BANDEAU ERREUR (BACKEND) ====== */
+.home-error-banner {
+  background: #fffbea;
+  border: 1px solid #f6e05e;
+  color: #744210;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin: 20px auto 12px;
+  font-size: 0.85rem;
+  max-width: 900px;
+}
+
+/* ====== STATS (Alignement horizontal) ====== */
 .stats-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Centre les cartes */
+  justify-content: center;
   gap: 20px;
   margin-bottom: 60px;
   padding: 0 20px;
@@ -137,7 +239,7 @@
 }
 
 .stat-card-clean {
-  background: white;
+  background: #ffffff;
   padding: 15px 25px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.04);
@@ -145,6 +247,7 @@
   align-items: center;
   gap: 15px;
   min-width: 180px;
+  border: 1px solid rgba(0,0,0,0.02);
 }
 
 /* Bulles colorées pour les icônes */
@@ -175,37 +278,10 @@
   font-size: 0.9rem;
 }
 
-/* --- 4. RESPONSIVE (Pour mobile) --- */
-@media (max-width: 768px) {
-  .hero-text h1 { font-size: 2rem; }
-  
-  .search-bar-floating {
-    flex-direction: column !important; /* Empile sur mobile */
-    border-radius: 24px;
-    padding: 20px;
-    gap: 15px;
-  }
-  
-  .search-divider { display: none; } /* Cache la ligne sur mobile */
-  
-  .search-input-group {
-    width: 100%;
-    border-bottom: 1px solid #f3f4f6;
-    padding-bottom: 10px;
-  }
-  
-  .btn-search-circle {
-    width: 100%;
-    border-radius: 12px;
-    height: 45px;
-  }
-  
-  .mobile-hidden { display: none; }
-}
-/* --- 5. SECTION CONTENU (Le conteneur) --- */
+/* ====== SECTION CONTENU (conteneurs) ====== */
 .content-section {
   max-width: 1200px;
-  margin: 0 auto 60px; /* Centre la section et ajoute de l'espace en bas */
+  margin: 0 auto 60px;
   padding: 0 20px;
 }
 
@@ -213,53 +289,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #E5E7EB; /* Ligne grise fine */
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 .section-header h2 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #1F2937;
   margin: 0;
   font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* Lien "Explorer" */
+/* Lien "Explorer" / "Tout voir" */
 .link-arrow {
-  color: #01c6b2; /* Vert Shibux */
+  color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1rem;
+  gap: 6px;
+  font-size: 0.95rem;
   transition: gap 0.2s ease;
 }
 
 .link-arrow:hover {
-  gap: 12px; /* Animation petite flèche */
-  color: #01c6b2;
+  gap: 10px;
+  color: var(--color-primary);
 }
 
-/* --- 6. GRILLE (Mise en page horizontale) --- */
+/* ====== GRILLE DE CARTES ====== */
 .cards-grid {
   display: grid;
-  /* Crée des colonnes automatiques (min 300px de large) */
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-  gap: 30px; /* Espace entre les cartes */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
 }
 
-/* --- 7. STYLE DE LA CARTE (Shibux Card) --- */
+/* ====== CARTE BUS (Style Shibux) ====== */
 .shibux-card {
   background: #ffffff;
-  border-radius: 24px; /* Coins très arrondis */
-  overflow: hidden; /* Coupe ce qui dépasse */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06); /* Ombre douce */
-  text-decoration: none; /* Enlève le soulignement moche */
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  text-decoration: none;
   color: inherit;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -269,33 +344,33 @@
 }
 
 .shibux-card:hover {
-  transform: translateY(-10px); /* La carte monte au survol */
-  box-shadow: 0 20px 50px rgba(0, 210, 160, 0.15); /* Ombre verte légère */
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 210, 160, 0.15);
 }
 
-/* Zone du haut (Fausse image / Dégradé) */
+/* Zone du haut (dégradé) */
 .card-header-img {
   height: 130px;
-  background: linear-gradient(135deg, #E0FBF4 0%, #ffffff 100%); /* Dégradé Menthe -> Blanc */
+  background: linear-gradient(135deg, #E0FBF4 0%, #ffffff 100%);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Icône décorative en fond */
+/* Icône décorative */
 .card-icon-overlay {
   font-size: 6rem;
-  color: rgba(0, 210, 160, 0.08); /* Très transparent */
+  color: rgba(0, 210, 160, 0.08);
   position: absolute;
   right: -10px;
   bottom: -10px;
   transform: rotate(-15deg);
 }
 
-/* Le numéro du bus (Badge vert) */
+/* Numéro du bus */
 .bus-number {
-  background-color: #01c6b2;
+  background-color: var(--color-primary);
   color: white;
   font-size: 1.8rem;
   font-weight: 800;
@@ -305,7 +380,7 @@
   box-shadow: 0 8px 20px rgba(0, 210, 160, 0.4);
 }
 
-/* Le corps de la carte */
+/* Corps de la carte */
 .card-body {
   padding: 25px;
   display: flex;
@@ -331,7 +406,7 @@
 }
 
 .separator {
-  color: #01c6b2;
+  color: var(--color-primary);
   font-size: 1.2rem;
 }
 
@@ -340,7 +415,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px dashed #E5E7EB; /* Ligne pointillée */
+  border-top: 1px dashed #E5E7EB;
   padding-top: 15px;
   margin-top: 5px;
 }
@@ -362,10 +437,13 @@
   display: block;
 }
 
-.status-dot.on { color: #01c6b2; } /* Vert */
-.status-dot.on::before { background-color: #01c6b2; box-shadow: 0 0 0 3px rgba(1, 198, 178, 0.2); }
+.status-dot.on { color: var(--color-primary); }
+.status-dot.on::before {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(1, 198, 178, 0.2);
+}
 
-.status-dot.off { color: #9CA3AF; } /* Gris */
+.status-dot.off { color: #9CA3AF; }
 .status-dot.off::before { background-color: #9CA3AF; }
 
 /* Prix */
@@ -378,15 +456,84 @@
   font-size: 0.9rem;
 }
 
-/* src/pages/Home.css ou transport.css */
-
-.shibux-card, .stat-card-clean {
-  /* Avant: background: #fff; */
-  background: var(--bg-card); 
-  /* ... */
+/* ====== ÉTAT VIDE ====== */
+.empty-state {
+  padding: 14px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  background: #edf2f7;
+  border-radius: 12px;
 }
 
-/* Le fond de la page d'accueil doit utiliser le fond général */
-.home {
-  background-color: var(--bg-app);
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 16px 70px;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .search-bar-floating {
+    flex-direction: column !important;
+    border-radius: 24px;
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .search-divider {
+    display: none;
+  }
+
+  .search-input-group {
+    width: 100%;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 10px;
+  }
+
+  .btn-search-circle {
+    width: 100%;
+    border-radius: 12px;
+    height: 45px;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
+
+  .stats-grid {
+    margin-top: 20px;
+    margin-bottom: 30px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.home-mini-map-container {
+  height: 250px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+/* Label "Proche de vous" dans la carte bus */
+.nearby-label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  background: #ffffff;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }

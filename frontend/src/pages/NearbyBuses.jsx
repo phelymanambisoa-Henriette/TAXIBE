@@ -1,267 +1,310 @@
 // src/pages/NearbyBuses.jsx
 import React, { useEffect, useMemo, useState } from 'react';
-import useGeolocation from '../hooks/useGeolocation';
-import { localisationService } from '../services/localisationService';
-import { transportService } from '../services/transportService';
-import { calculerDistance, formaterDistance } from '../utils/carteUtils';
-import { FaLocationArrow, FaBus, FaMapMarkerAlt, FaSync } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { useLocation as useLocationContext } from '../contexts/LocationContext';
+import busService from '../services/busService';
+import localisationService from '../services/localisationService';
+
+import { 
+  HiArrowLeft, 
+  HiLocationMarker, 
+  HiRefresh, 
+  HiArrowRight 
+} from 'react-icons/hi';
+import { FaBus, FaMapMarkedAlt, FaRoute, FaMoneyBillWave } from 'react-icons/fa';
+
+import './NearbyBuses.css';
+
+/* ========= FONCTIONS UTILITAIRES ========= */
+
+const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; 
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) *
+    Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
+
+const formatDistance = (dKm) => {
+  if (dKm < 1) return `${Math.round(dKm * 1000)} m`;
+  return `${dKm.toFixed(1)} km`;
+};
+
+const estimateWalkTime = (dKm) => {
+  const minutes = Math.round((dKm / 5) * 60);
+  if (minutes < 1) return `< 1 min`;
+  return `${minutes} min`;
+};
+
+/* ========= COMPOSANT PRINCIPAL ========= */
 
 const NearbyBuses = () => {
-  const { location, error: geoError, loading: geoLoading } = useGeolocation();
+  const navigate = useNavigate();
+  const { userLocation, getCurrentPosition, isLocating } = useLocationContext();
 
-  const [arrets, setArrets] = useState([]);
   const [buses, setBuses] = useState([]);
-  const [trajetsIndex, setTrajetsIndex] = useState(new Map()); // arretId -> Set(busNumero)
-  const [radiusKm, setRadiusKm] = useState(1); // rayon par défaut 1 km
+  const [arrets, setArrets] = useState([]);
+  const [arretsToBusesMap, setArretsToBusesMap] = useState({});
+  const [radiusKm, setRadiusKm] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadData = async () => {
     setLoading(true);
-    setErr('');
+    setError(null);
+
     try {
-      const [arretsRes, busesRes] = await Promise.all([
-        localisationService.getAllArrets(),
-        transportService.getAllBuses(),
-      ]);
+      const busesData = await busService.getAllBus();
+      const arretsData = await localisationService.getAllArrets();
 
-      const arretsData = arretsRes.data || [];
-      const busesData = busesRes.data || [];
+      const busesList = Array.isArray(busesData) ? busesData : busesData.results || [];
+      const arretsList = Array.isArray(arretsData) ? arretsData : arretsData.results || [];
 
-      setArrets(arretsData);
-      setBuses(busesData);
+      setBuses(busesList);
+      setArrets(arretsList);
 
-      // Construire l'index arretId -> Set(busNumero) en récupérant les trajets
-      const index = new Map();
-      for (const bus of busesData) {
+      const index = {};
+
+      for (const bus of busesList) {
         try {
-          const det = await transportService.getBusById(bus.id);
-          const busDetails = det.data;
-          if (busDetails.trajets && busDetails.trajets.length > 0) {
-            busDetails.trajets.forEach((trajet) => {
-              (trajet.arrets || []).forEach((a) => {
-                if (!index.has(a.id)) index.set(a.id, new Set());
-                index.get(a.id).add(bus.numeroBus || bus.numero || `#${bus.id}`);
-              });
-            });
-          }
+          const arretsLigne = await busService.getArretsByBus(bus.id);
+          arretsLigne.forEach((arret) => {
+            if (!index[arret.id]) index[arret.id] = new Set();
+            index[arret.id].add(bus.id);
+          });
         } catch (e) {
-          // On ignore les erreurs de détail bus pour ne pas bloquer
-          console.warn('Bus detail error', bus.id, e?.response?.status || e?.message);
+          console.warn('⚠️ Nearby: erreur getArretsByBus pour bus', bus.id, e?.message);
         }
       }
-      setTrajetsIndex(index);
-    } catch (e) {
-      console.error('Erreur chargement données Nearby:', e);
-      setErr("Impossible de charger les données (arrêts/bus).");
+
+      const arretsToBuses = {};
+      Object.keys(index).forEach(arretId => {
+        arretsToBuses[arretId] = Array.from(index[arretId]);
+      });
+      setArretsToBusesMap(arretsToBuses);
+
+    } catch (err) {
+      console.error('❌ Nearby loadData - Erreur:', err);
+      setError('Impossible de charger les données (bus/arrêts).');
     } finally {
       setLoading(false);
     }
   };
 
-  const nearestStops = useMemo(() => {
-    if (!location || arrets.length === 0) return [];
-    const { latitude, longitude } = location;
+  const nearbyStops = useMemo(() => {
+    if (!userLocation || arrets.length === 0) return [];
+    const { lat, lng } = userLocation;
 
-    const enriched = arrets.map((a) => {
-      const dist = calculerDistance(
-        parseFloat(latitude),
-        parseFloat(longitude),
-        parseFloat(a.latitude),
-        parseFloat(a.longitude)
-      );
-      const busSet = trajetsIndex.get(a.id) || new Set();
-      return {
-        ...a,
-        distanceKm: dist,
-        busList: Array.from(busSet),
-      };
-    });
-
-    // Filtrer par rayon et trier par distance
-    return enriched
-      .filter((a) => a.distanceKm <= radiusKm)
+    return arrets
+      .filter(a => a.latitude != null && a.longitude != null)
+      .map(a => {
+        const dKm = calculateDistanceKm(
+          lat,
+          lng,
+          parseFloat(a.latitude),
+          parseFloat(a.longitude)
+        );
+        const busIds = arretsToBusesMap[a.id] || [];
+        const withBus = buses.filter(b => busIds.includes(b.id));
+        return {
+          ...a,
+          distanceKm: dKm,
+          busList: withBus,
+        };
+      })
+      .filter(a => a.distanceKm <= radiusKm)
       .sort((a, b) => a.distanceKm - b.distanceKm)
-      .slice(0, 20); // limiter à 20 pour l'affichage
-  }, [location, arrets, trajetsIndex, radiusKm]);
+      .slice(0, 50);
+  }, [userLocation, arrets, arretsToBusesMap, buses, radiusKm]);
 
-  const refreshGeo = () => {
-    // Le hook useGeolocation watch déjà la position,
-    // mais on peut forcer un refresh de l’UI
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleRefreshLocation = () => {
+    getCurrentPosition().catch((err) => {
+      console.error('Géolocalisation refusée/erreur:', err);
+    });
   };
 
-  return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: 20 }}>
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 12,
-          padding: 20,
-          marginBottom: 16,
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <h1 style={{ marginBottom: 8 }}>🧭 Bus proches de vous</h1>
-        <p style={{ marginBottom: 16, color: 'var(--text-secondary)' }}>
-          Trouvez les arrêts et lignes à proximité de votre position.
-        </p>
+  if (loading) {
+    return (
+      <div className="nearby-page">
+        <div className="nearby-header">
+          <button onClick={() => navigate(-1)} className="btn-back">
+            <HiArrowLeft /> Retour
+          </button>
+          <h1>📍 Arrêts à proximité</h1>
+        </div>
+        <div className="nearby-loading">
+          <div className="spinner"></div>
+          <p>Chargement des arrêts proches...</p>
+        </div>
+      </div>
+    );
+  }
 
-        {/* Etat géolocalisation */}
-        {geoLoading ? (
-          <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8 }}>
-            Obtention de votre position...
+  if (!userLocation && !isLocating) {
+    return (
+      <div className="nearby-page">
+        <div className="nearby-header">
+          <button onClick={() => navigate(-1)} className="btn-back">
+            <HiArrowLeft /> Retour
+          </button>
+          <h1>📍 Arrêts à proximité</h1>
+        </div>
+
+        <div className="location-prompt">
+          <div className="location-icon">
+            <HiLocationMarker size={60} />
           </div>
-        ) : geoError ? (
-          <div style={{ padding: 12, background: 'rgba(244, 67, 54, 0.15)', borderRadius: 8, border: '1px solid rgba(244, 67, 54, 0.3)' }}>
-            ⚠️ Géolocalisation indisponible: {geoError}
-            <div style={{ marginTop: 8 }}>
-              - Vérifiez les permissions du navigateur (icône cadenas  ,  Site settings  ,  Location: Allow)
-              <br />
-              - Sur Windows: Paramètres  ,  Confidentialité  ,  Position: activée
-            </div>
-          </div>
-        ) : location ? (
-          <div
-            style={{
-              display: 'flex',
-              gap: 12,
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              marginBottom: 12,
-            }}
+          <h2>Localisation requise</h2>
+          <p>Autorisez l'accès à votre position pour trouver les arrêts proches de vous.</p>
+          <button 
+            className="btn-enable-location"
+            onClick={handleRefreshLocation}
+            disabled={isLocating}
           >
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <FaLocationArrow />
-              <span>
-                Lat {Number(location.latitude).toFixed(5)}, Lng {Number(location.longitude).toFixed(5)} • ±
-                {Math.round(location.accuracy)}m
-              </span>
-            </div>
+            {isLocating ? 'Localisation en cours...' : 'Activer la localisation'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center' }}>
-              <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                Rayon:
-                <select
-                  value={radiusKm}
-                  onChange={(e) => setRadiusKm(Number(e.target.value))}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: 8,
-                    border: '1px solid var(--border-color)',
-                    background: 'var(--bg-secondary)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  <option value={0.3}>300 m</option>
-                  <option value={0.5}>500 m</option>
-                  <option value={1}>1 km</option>
-                  <option value={2}>2 km</option>
-                  <option value={5}>5 km</option>
-                </select>
-              </label>
-
-              <button
-                onClick={refreshGeo}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-secondary)',
-                  color: 'var(--text-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <FaSync /> Actualiser
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {err && (
-          <div style={{ marginTop: 12, padding: 12, background: 'rgba(244, 67, 54, 0.1)', borderRadius: 8, border: '1px solid rgba(244,67,54,0.25)' }}>
-            {err}
-          </div>
-        )}
+  return (
+    <div className="nearby-page">
+      
+      {/* HEADER */}
+      <div className="nearby-header">
+        <button onClick={() => navigate(-1)} className="btn-back">
+          <HiArrowLeft /> Retour
+        </button>
+        <div className="header-content">
+          <h1>📍 Arrêts à proximité</h1>
+          {userLocation && (
+            <p className="header-subtitle">
+              <HiLocationMarker /> Basé sur votre position actuelle (±
+              {Math.round(userLocation.accuracy || 0)}m)
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Résultats */}
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 12,
-          padding: 20,
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <h2 style={{ marginBottom: 16 }}>📍 Arrêts à proximité</h2>
-
-        {loading ? (
-          <div style={{ padding: 12 }}>Chargement des arrêts et lignes...</div>
-        ) : !location ? (
-          <div style={{ padding: 12 }}>
-            Autorisez la géolocalisation pour voir les arrêts proches.
-          </div>
-        ) : nearestStops.length === 0 ? (
-          <div style={{ padding: 12 }}>
-            Aucun arrêt trouvé dans un rayon de {radiusKm} km.
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: 12 }}>
-            {nearestStops.map((a) => (
-              <div
-                key={a.id}
-                style={{
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 10,
-                  padding: 14,
-                  background: 'var(--bg-secondary)',
-                }}
+      {/* CONTROLS */}
+      <div className="nearby-controls">
+        <div className="control-group">
+          <label>Rayon de recherche</label>
+          <div className="radius-buttons">
+            {[0.3, 0.5, 1, 2, 5].map((r) => (
+              <button 
+                key={r}
+                className={`radius-btn ${radiusKm === r ? 'active' : ''}`}
+                onClick={() => setRadiusKm(r)}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <FaMapMarkerAlt />
-                  <strong>{a.nomArret || a.nom}</strong>
-                  <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>
-                    {formaterDistance(a.distanceKm)}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {(a.busList.length ? a.busList : []).map((num) => (
-                    <span
-                      key={`${a.id}-${num}`}
-                      style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: 'white',
-                        padding: '4px 10px',
-                        borderRadius: 999,
-                        fontWeight: 600,
-                        fontSize: '0.9rem',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <FaBus /> {num}
-                    </span>
-                  ))}
-                  {a.busList.length === 0 && (
-                    <span style={{ color: 'var(--text-tertiary)' }}>Aucune ligne indexée</span>
-                  )}
-                </div>
-              </div>
+                {r < 1 ? `${r * 1000} m` : `${r} km`}
+              </button>
             ))}
           </div>
+        </div>
+
+        <button 
+          className="btn-refresh"
+          onClick={handleRefreshLocation}
+          disabled={isLocating}
+        >
+          <HiRefresh className={isLocating ? 'spinning' : ''} /> Actualiser
+        </button>
+      </div>
+
+      {error && (
+        <div className="nearby-error">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* LISTE DES ARRÊTS */}
+      <div className="nearby-list">
+        {nearbyStops.length === 0 ? (
+          <div className="no-stops">
+            <p>Aucun arrêt trouvé dans un rayon de {radiusKm} km.</p>
+          </div>
+        ) : (
+          nearbyStops.map((stop) => (
+            <div key={stop.id} className="stop-card">
+              <div className="stop-main">
+                <div className="stop-distance">
+                  {formatDistance(stop.distanceKm)}
+                </div>
+                <div className="stop-info">
+                  <h3>{stop.nomArret || stop.nom}</h3>
+                  <p className="stop-meta">
+                    🥾 ~{estimateWalkTime(stop.distanceKm)} à pied
+                  </p>
+                </div>
+                <Link 
+                  to={`/carte?arret=${stop.id}`} 
+                  className="btn-map-link"
+                >
+                  <FaMapMarkedAlt /> Carte
+                </Link>
+              </div>
+
+              {/* ✅ BUS EN CARTES */}
+              <div className="stop-buses-grid">
+                {stop.busList && stop.busList.length > 0 ? (
+                  stop.busList.map((bus) => (
+                    <Link 
+                      key={bus.id} 
+                      to={`/bus/${bus.id}`}
+                      className="bus-card"
+                    >
+                      <div className="bus-card-header">
+                        <div className="bus-icon">
+                          <FaBus />
+                        </div>
+                        <span className="bus-number">{bus.numeroBus}</span>
+                      </div>
+                      
+                      <div className="bus-card-body">
+                        <div className="bus-route">
+                          <FaRoute className="route-icon" />
+                          <span>{bus.lieuDepart || '?'}</span>
+                          <HiArrowRight className="arrow-icon" />
+                          <span>{bus.lieuArrivee || '?'}</span>
+                        </div>
+                        
+                        {bus.frais && (
+                          <div className="bus-price">
+                            <FaMoneyBillWave />
+                            <span>{bus.frais} Ar</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="bus-card-footer">
+                        <span className="view-details">
+                          Voir détails <HiArrowRight />
+                        </span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="no-bus-card">
+                    <FaBus className="no-bus-icon" />
+                    <span>Aucune ligne connue</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>

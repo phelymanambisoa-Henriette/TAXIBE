@@ -1,4 +1,4 @@
-/* AdminBusList.css */
+/* src/apps/admin/AdminBusList.css */
 .admin-bus-list {
   padding: 24px;
   background: linear-gradient(135deg, #f5f7fa 0%, #f8f9fc 100%);
@@ -41,7 +41,7 @@
 }
 
 .btn-primary {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 14px 24px;
@@ -195,6 +195,7 @@
   left: 18px;
   color: #a0aec0;
   font-size: 18px;
+  z-index: 2;
 }
 
 .search-field input, .filter-field select {
@@ -206,6 +207,7 @@
   transition: all 0.3s ease;
   background: white;
   color: #2d3748;
+  position: relative;
 }
 
 .search-field input:focus, .filter-field select:focus {
@@ -217,6 +219,11 @@
 .filter-field select {
   appearance: none;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234a5568'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+  padding-right: 48px;
 }
 
 .btn-refresh {
@@ -238,6 +245,7 @@
   background: #f7fafc;
   border-color: #cbd5e0;
   color: #2d3748;
+  transform: translateY(-1px);
 }
 
 /* Table Card */
@@ -262,7 +270,7 @@
 }
 
 .bus-table thead {
-  background: linear-gradient(135deg, #a4b2f3 0%, #01c6b2  100%);
+  background: linear-gradient(135deg, #a4b2f3 0%, #01c6b2 100%);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -276,6 +284,7 @@
   font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .bus-table th svg {
@@ -302,12 +311,14 @@
   padding: 20px;
   color: #4a5568;
   font-size: 15px;
+  vertical-align: middle;
 }
 
 .index-cell {
   font-weight: 600;
   color: #718096;
   width: 60px;
+  text-align: center;
 }
 
 .bus-numero {
@@ -353,6 +364,7 @@
 .trajet-arrow {
   color: #94a3b8;
   font-weight: bold;
+  font-size: 18px;
 }
 
 .tarif {
@@ -363,6 +375,7 @@
   font-weight: 700;
   font-size: 16px;
   display: inline-block;
+  white-space: nowrap;
 }
 
 /* Status Badges */
@@ -376,6 +389,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .status-badge.active {
@@ -399,12 +413,22 @@
   padding: 10px 16px;
   border-radius: 8px;
   font-weight: 500;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 /* Action Buttons */
 .actions-cell {
+  width: 180px;
+  text-align: center;
+}
+
+.actions-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
+  height: 100%;
 }
 
 .btn-icon {
@@ -418,6 +442,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
 .btn-icon.view {
@@ -493,11 +518,41 @@
   padding: 20px;
   border-top: 1px solid #e2e8f0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background: #f8fafc;
   color: #64748b;
   font-size: 14px;
+}
+
+/* Accès refusé */
+.admin-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+  margin: 24px;
+}
+
+.admin-denied h2 {
+  font-size: 48px;
+  color: #ef4444;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-denied p {
+  font-size: 18px;
+  color: #6b7280;
+  max-width: 400px;
 }
 
 /* Animations */
@@ -538,6 +593,26 @@
   }
 }
 
+/* Scrollbar Styling */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #a4b2f3, #01c6b2 100%);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #a4b2f3 0%, #01c6b2 100%);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .admin-bus-list {
@@ -549,15 +624,33 @@
   }
 }
 
+@media (max-width: 900px) {
+  .bus-table {
+    min-width: 800px;
+  }
+}
+
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
     gap: 20px;
     text-align: center;
+    padding: 24px 16px;
+  }
+  
+  .header-content h1 {
+    font-size: 24px;
+    justify-content: center;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
   
   .toolbar {
     flex-direction: column;
+    align-items: stretch;
   }
   
   .search-field, .filter-field {
@@ -572,17 +665,9 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-}
-
-@media (max-width: 480px) {
-  .header-content h1 {
-    font-size: 24px;
-  }
   
   .stat-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
+    padding: 20px;
   }
   
   .stat-icon {
@@ -597,6 +682,7 @@
   
   .bus-table th, .bus-table td {
     padding: 16px 12px;
+    font-size: 14px;
   }
   
   .trajet-info {
@@ -607,5 +693,64 @@
   
   .trajet-arrow {
     display: none;
+  }
+  
+  .trajet-depart, .trajet-arrivee {
+    max-width: 150px;
+  }
+  
+  .actions-container {
+    gap: 8px;
+  }
+  
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 22px;
+  }
+  
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .bus-numero {
+    min-width: 60px;
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+  
+  .tarif {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+  
+  .status-badge {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .toast {
+    left: 16px;
+    right: 16px;
+    top: 16px;
+    max-width: none;
   }
 }

@@ -1,0 +1,109 @@
+/* src/styles/global.css */
+@import './variables.css';
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif; /* Police recommandée pour ce style (import-la via Google Fonts) */
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  color: var(--text-primary);
+  font-weight: 700; /* Titres bien gras comme sur l'image */
+  letter-spacing: -0.5px; /* Un peu serré pour faire moderne */
+}
+
+/* --- BOUTONS STYLE "SHIBUX" --- */
+/* Le bouton vert vif arrondi */
+button.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-btn); /* Bords très ronds */
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 210, 160, 0.4); /* Ombre verte lumineuse */
+  transition: var(--transition);
+}
+
+button.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* --- INPUTS MODERNES --- */
+/* Les champs de recherche avec un petit fond gris et sans bordure visible */
+input, select {
+  background-color: var(--bg-input);
+  border: 1px solid transparent;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+input:focus, select:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+/* --- LA BARRE DE RECHERCHE FLOTTANTE --- */
+/* C'est l'élément clé de l'image (le bloc blanc avec les champs et le bouton vert) */
+.search-bar-container {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius-lg); /* Gros arrondis */
+  box-shadow: var(--shadow-card);  /* Grosse ombre douce */
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  /* Pour la superposer sur une image de fond si besoin */
+  position: relative; 
+  z-index: 10;
+}
+
+/* --- CARTES (Les destinations) --- */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg); /* 24px */
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-card);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-lg); /* L'image elle-même est arrondie */
+}
+
+/* src/styles/global.css ou App.css */
+
+body {
+  /* ... autres styles ... */
+  background-color: var(--bg-app); /* DOIT utiliser la variable */
+  color: var(--text-primary);    /* DOIT utiliser la variable */
+  transition: background-color 0.3s, color 0.3s; /* Ajoute une transition pour le style */
+}
+
+/* Assure-toi que tous tes composants utilisent var(--bg-card) */
+
+/* Exemple de réplication du style sur le Header si besoin */
+.header {
+    background-color: var(--header-bg);
+}

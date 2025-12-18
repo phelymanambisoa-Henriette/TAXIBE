@@ -28,7 +28,7 @@
 
 .sidebar-logo-img {
   width: 500%;
-  max-width: 450px; /* Taille max de l'image */
+  max-width: 100px; /* Taille max de l'image */
   height: 150%;
   object-fit: contain; /* Garde les proportions */
   display: block;

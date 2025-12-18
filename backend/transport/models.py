@@ -62,3 +62,16 @@ class TrajetArret(models.Model):
                 nom_arret = f"Arrêt #{self.arretRef.id}"
         
         return f"{self.trajetRef} - {nom_arret}"
+
+# Nouvelle classe pour enregistrer les positions des bus
+class PositionBus(models.Model):
+    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='positions')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"Pos {self.bus.numeroBus} @ {self.timestamp}"        

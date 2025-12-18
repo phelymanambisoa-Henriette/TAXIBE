@@ -1,0 +1,368 @@
+/* src/apps/utilisateur/Register.css */
+
+/* ========== CONTENEUR GLOBAL ========== */
+.register-page {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+}
+
+/* ========== SPHÈRES ANIMÉES ========== */
+.background-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #01c6b2, #01a67e);
+  top: -50px;
+  right: -50px;
+  box-shadow: 0 20px 50px rgba(0, 210, 160, 0.25);
+}
+
+.shape-2 {
+  width: 220px;
+  height: 220px;
+  background: linear-gradient(135deg, #01c6b2, #01a67e);
+  bottom: 40px;
+  left: -60px;
+  animation-delay: 1s;
+  opacity: 0.9;
+}
+
+.shape-3 {
+  width: 120px;
+  height: 120px;
+  background: #E0FBF4;
+  top: 50%;
+  left: 15%;
+  opacity: 0.6;
+  animation-delay: 2s;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-25px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* ========== CARTE VERRE ========== */
+.register-glass-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* ========== HEADER ========== */
+.register-header h2 {
+  margin: 0;
+  color: #1F2937;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.register-header p {
+  color: #6B7280;
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
+
+/* ========== MESSAGE ERREUR ========== */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  text-align: left;
+}
+
+/* ========== FORMULAIRE ========== */
+.glass-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ========== AVATAR UPLOAD ========== */
+.avatar-upload-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 25px;
+  background: rgba(0, 210, 160, 0.05);
+  border-radius: 20px;
+  border: 2px dashed rgba(0, 210, 160, 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-group:hover {
+  border-color: rgba(0, 210, 160, 0.5);
+  background: rgba(0, 210, 160, 0.08);
+}
+
+.vignette-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0fdf9 0%, #e6fffa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 4px solid #01c6b2;
+  box-shadow: 0 8px 25px rgba(0, 210, 160, 0.25);
+  transition: all 0.3s ease;
+}
+
+.vignette-preview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 35px rgba(0, 210, 160, 0.35);
+}
+
+.preview-image-constrained {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.default-user-icon {
+  color: #01c6b2;
+  opacity: 0.6;
+}
+
+.btn-upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #01c6b2 0%, #01a67e 100%);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 210, 160, 0.3);
+}
+
+.btn-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 210, 160, 0.4);
+}
+
+.btn-upload svg {
+  font-size: 16px;
+}
+
+/* ========== INPUTS ========== */
+.input-group {
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4B5563;
+  margin-bottom: 8px;
+  margin-left: 5px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 15px;
+  color: #9CA3AF;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 45px 14px 18px;
+  border-radius: 15px;
+  border: 2px solid #E5E7EB;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  color: #1F2937;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.input-wrapper input:focus {
+  border-color: #01c6b2;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 210, 160, 0.15);
+}
+
+.input-wrapper input:disabled {
+  background: #F3F4F6;
+  cursor: not-allowed;
+}
+
+.error-text {
+  color: #EF4444;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  margin-left: 5px;
+  display: block;
+}
+
+/* ========== BOUTON SUBMIT ========== */
+.btn-glass-submit {
+  background: linear-gradient(135deg, #01c6b2 0%, #01a67e 100%);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 210, 160, 0.3);
+  margin-top: 10px;
+}
+
+.btn-glass-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 210, 160, 0.4);
+}
+
+.btn-glass-submit:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========== FOOTER ========== */
+.register-footer {
+  margin-top: 25px;
+  font-size: 0.9rem;
+  color: #6B7280;
+}
+
+.register-footer a {
+  color: #01c6b2;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-footer a:hover {
+  color: #01a67e;
+  text-decoration: underline;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 480px) {
+  .register-glass-card {
+    padding: 30px 20px;
+    border-radius: 20px;
+  }
+
+  .register-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .vignette-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .btn-upload {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .input-wrapper input {
+    padding: 12px 40px 12px 15px;
+  }
+}
+
+/* MESSAGE DE SUCCÈS */
+.success-message {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(4, 120, 87, 0.15) 100%);
+  color: #01c6b2;
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  text-align: center;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Spinner animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-glass-submit .spin {
+  margin-right: 8px;
+}

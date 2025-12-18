@@ -1,14 +1,14 @@
-// src/App.js (TOUT ENTIER)
+// src/App.js - VERSION CORRIGÉE
 
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
-// Layouts & Contexts
+// Contexts
 import { AuthProvider } from './contexts/AuthContext';
 import { LocationProvider } from './contexts/LocationContext';
-import { ItineraireProvider } from './contexts/ItineraireContext';
-import { ThemeProvider } from './contexts/ThemeContext'; // ← AJOUT
+import { ThemeProvider } from './contexts/ThemeContext';
 
+// Layouts
 import Layout from './components/layout/Layout'; 
 import AdminLayout from './components/layout/AdminLayout'; 
 
@@ -17,12 +17,13 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import AdminRoute from './components/layout/AdminRoute';
 
 // Pages CLIENT
+import Welcome from './pages/Welcome';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Transport from './apps/transport/Transport';
 import BusDetail from './pages/BusDetail'; 
 import NearbyBuses from './pages/NearbyBuses'; 
-import CartePage from './components/Carte/CarteInteractive'; 
+import Carte from './pages/Carte';
 import NotFound from './pages/NotFound'; 
 import HelpSupport from './pages/HelpSupport';
 import Settings from './pages/Settings'; 
@@ -46,57 +47,76 @@ import AdminHistorique from './apps/admin/AdminHistorique';
 import AdminReports from './apps/admin/AdminReports';
 import AdminUsers from './apps/admin/AdminUsers';
 
+import 'leaflet/dist/leaflet.css';
+import './leafletConfig';
+
+import ProfileHistory from './pages/ProfileHistory';
 
 function App() {
   return (
-    <ThemeProvider> {/* ← AJOUT : Enveloppe tout */}
+    <ThemeProvider>
       <AuthProvider>
         <LocationProvider>
-          <ItineraireProvider>
-            <Routes>
+          <Routes>
+
+            {/* ✅ WELCOME EN PREMIER SUR "/" */}
+            <Route path="/" element={<Welcome />} />
+            <Route path="/welcome" element={<Welcome />} />
+
+            {/* ========== LOGIN SANS LAYOUT ========== */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* ========== ZONE CLIENT/PUBLIQUE (avec Layout) ========== */}
+            <Route element={<Layout />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/transport" element={<Transport />} />
+              <Route path="/bus/:id" element={<BusDetail />} />
+              <Route path="/nearby" element={<NearbyBuses />} />
+              <Route path="/commentaires" element={<Commentaires />} />
               
-              {/* --- ZONE CLIENT/PUBLIQUE (Layout général) --- */}
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/transport" element={<Transport />} />
-                <Route path="/bus/:id" element={<BusDetail />} />
-                <Route path="/carte" element={<CartePage />} />
-                <Route path="/nearby" element={<NearbyBuses />} />
-                <Route path="/commentaires" element={<Commentaires />} />
-                
-                <Route path="/help" element={<HelpSupport />} /> 
-                <Route path="/settings" element={<Settings />} /> 
-                
-                {/* Pages Auth */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+              {/* Carte */}
+              <Route path="/carte" element={<Carte />} />
+              <Route path="/map" element={<Carte />} />
+              
+              <Route path="/help" element={<HelpSupport />} /> 
+              <Route path="/settings" element={<Settings />} /> 
+              
+              {/* Pages Auth - version avec layout (si besoin) */}
+              <Route path="/register" element={<Register />} />
 
-                {/* Pages Nécessitant Connexion */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/profil" element={<Profil />} />
-                  <Route path="/contribution" element={<Contribution />} />
-                </Route>
+              {/* Pages Nécessitant Connexion */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/profil" element={<Profil />} />
+                <Route path="/contribution" element={<Contribution />} />
+                <Route path="/profil/historique" element={<ProfileHistory />} />
               </Route>
+            </Route>
 
-              {/* --- ZONE ADMIN (Protégée) --- */}
-              <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="bus" element={<AdminBusList />} />
-                <Route path="bus/new" element={<AdminBusForm />} />
-                <Route path="bus/:id" element={<AdminBusForm />} />
-                <Route path="commentaires" element={<AdminCommentaires />} />
-                <Route path="contributions" element={<AdminContributions />} />
-                <Route path="signalements" element={<AdminReports />} />
-                <Route path="utilisateurs" element={<AdminUsers />} />
-                <Route path="historiques" element={<AdminHistorique />} />
-              </Route>
+            {/* ========== ZONE ADMIN (Protégée) ========== */}
+            <Route 
+              path="/admin" 
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="bus" element={<AdminBusList />} />
+              <Route path="bus/new" element={<AdminBusForm />} />
+              <Route path="bus/:id" element={<AdminBusForm />} />
+              <Route path="commentaires" element={<AdminCommentaires />} />
+              <Route path="contributions" element={<AdminContributions />} />
+              <Route path="signalements" element={<AdminReports />} />
+              <Route path="utilisateurs" element={<AdminUsers />} />
+              <Route path="historiques" element={<AdminHistorique />} />
+            </Route>
 
-              {/* 404 */}
-              <Route path="*" element={<NotFound />} />
+            {/* ========== 404 ========== */}
+            <Route path="*" element={<NotFound />} />
 
-            </Routes>
-          </ItineraireProvider>
+          </Routes>
         </LocationProvider>
       </AuthProvider>
     </ThemeProvider> 

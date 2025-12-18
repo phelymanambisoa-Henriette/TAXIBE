@@ -4,10 +4,6 @@ import userService from '../../services/userService';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   FaSearch,
-  FaToggleOn,
-  FaToggleOff,
-  FaUserShield,
-  FaUserSlash,
   FaKey,
 } from 'react-icons/fa';
 import './AdminUsers.css';
@@ -166,7 +162,7 @@ const AdminUsers = () => {
         <form className="search-field" onSubmit={onSubmitSearch}>
           <FaSearch className="icon-muted" />
           <input
-            placeholder="Recherche (username, email, nom…)"
+            placeholder="Recherche (nom d'utilisateur, email, nom…)"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -217,7 +213,7 @@ const AdminUsers = () => {
               const isStaff = !!(u.is_staff || (u.role || '').toLowerCase() === 'admin');
 
               return (
-                <div className="user-row" key={u.id}>
+                <div className={`user-row ${!isActive ? 'inactive' : ''}`} key={u.id}>
                   {/* Colonne gauche : nom + email */}
                   <div className="user-col user-identite-col">
                     <div className="user-name">{displayName}</div>
@@ -247,34 +243,39 @@ const AdminUsers = () => {
                     </div>
                   </div>
 
-                <td className="actions-cell">
-                  {/* Bouton ACTIF : vert quand actif, neutre sinon */}
-                  <button
-                    onClick={() => onToggleActive(u.id)}
-                    className={`btn small btn-status ${u.is_active ? 'status-on' : 'status-off'}`}
-                    title={u.is_active ? "Désactiver l'utilisateur" : "Activer l'utilisateur"}
-                  >
-                    Actif
-                  </button>
+                  {/* Colonne droite : actions avec boutons toggle ALIGNÉS */}
+                  <div className="user-actions-col">
+                    {/* Conteneur pour Actif */}
+                    <div className="toggle-container">
+                      <span className="toggle-label">Actif</span>
+                      <button
+                        onClick={() => onToggleActive(u.id)}
+                        className={`btn-toggle ${isActive ? 'active-on' : 'active-off'}`}
+                        title={isActive ? "Désactiver l'utilisateur" : "Activer l'utilisateur"}
+                        aria-label={isActive ? "Utilisateur actif" : "Utilisateur inactif"}
+                      />
+                    </div>
 
-                  {/* Bouton STAFF : bleu quand staff, neutre sinon */}
-                  <button
-                    onClick={() => onToggleStaff(u.id)}
-                    className={`btn small btn-status ${ (u.is_staff || (u.role || '').toLowerCase() === 'admin') ? 'staff-on' : 'staff-off' }`}
-                    title={u.is_staff ? "Retirer droits staff" : "Donner droits staff"}
-                  >
-                    Staff
-                  </button>
+                    {/* Conteneur pour Staff */}
+                    <div className="toggle-container">
+                      <span className="toggle-label">Staff</span>
+                      <button
+                        onClick={() => onToggleStaff(u.id)}
+                        className={`btn-toggle ${isStaff ? 'staff-on' : 'staff-off'}`}
+                        title={isStaff ? "Retirer droits staff" : "Donner droits staff"}
+                        aria-label={isStaff ? "Droits staff activés" : "Droits staff désactivés"}
+                      />
+                    </div>
 
-                  {/* Bouton RÉINITIALISER : on garde ton style warn existant */}
-                  <button
-                    onClick={() => onResetPassword(u.id, u.username)}
-                    className="btn small warn"
-                    title="Réinitialiser mot de passe"
-                  >
-                    <FaKey /> 
-                  </button>
-                </td>
+                    {/* Bouton Réinitialiser */}
+                    <button
+                      onClick={() => onResetPassword(u.id, u.username)}
+                      className="btn-reset"
+                      title="Réinitialiser mot de passe"
+                    >
+                      <FaKey />
+                    </button>
+                  </div>
                 </div>
               );
             })}

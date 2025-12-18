@@ -1,105 +1,160 @@
-// src/services/localisationService.js
+// src/services/localisationService.js - VERSION CORRIGÉE
+
 import api from './api';
 
-export const localisationService = {
-  // ========== ARRETS ==========
-
-  // Tous les arrêts
+const localisationService = {
+  // ===== ARRÊTS =====
+  
   getAllArrets: async () => {
     try {
-      const response = await api.get('/localisation/arrets/');
-      return response;
+      console.log('🔄 getAllArrets - Appel API...');
+      const response = await api.get('/transport/arrets/');
+      console.log('✅ getAllArrets - Réponse:', response.data.length, 'arrêts');
+      return response.data;
     } catch (error) {
-      console.error('Error fetching arrets:', error);
+      console.error('❌ getAllArrets - Erreur:', error.message);
       throw error;
     }
   },
 
-  // Arrêt par ID
   getArretById: async (id) => {
     try {
-      const response = await api.get(`/localisation/arrets/${id}/`);
-      return response;
+      const response = await api.get(`/transport/arrets/${id}/`);
+      return response.data;
     } catch (error) {
-      console.error(`Error fetching arret ${id}:`, error);
+      console.error('❌ getArretById - Erreur:', error);
       throw error;
     }
   },
 
-  // Créer un arrêt
-  createArret: async ({ nomArret, latitude, longitude, villeRef }) => {
+  getNearbyArrets: async (lat, lng, radius = 500) => {
     try {
-      const payload = { nomArret, latitude, longitude, villeRef };
-      const response = await api.post('/localisation/arrets/', payload);
-      return response;
+      const response = await api.get('/transport/arrets/nearby/', {
+        params: { lat, lng, radius },
+      });
+      return response.data;
     } catch (error) {
-      console.error('Error creating arret:', error);
+      console.error('❌ getNearbyArrets - Erreur:', error);
       throw error;
     }
   },
 
-  // ========== VILLES ==========
+  searchArrets: async (query) => {
+    try {
+      const response = await api.get('/transport/arrets/search/', {
+        params: { q: query },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('❌ searchArrets - Erreur:', error);
+      throw error;
+    }
+  },
 
-  // Toutes les villes
+  // ===== LIGNES =====
+
+  getAllLignes: async () => {
+    try {
+      console.log('🔄 getAllLignes - Appel API...');
+      const response = await api.get('/transport/lignes/');
+      console.log('✅ getAllLignes - Réponse:', response.data.length, 'lignes');
+      return response.data;
+    } catch (error) {
+      console.error('❌ getAllLignes - Erreur:', error);
+      throw error;
+    }
+  },
+
+  getLigneById: async (id) => {
+    try {
+      const response = await api.get(`/transport/lignes/${id}/`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ getLigneById - Erreur:', error);
+      throw error;
+    }
+  },
+
+  getLignesByArret: async (arretId) => {
+    try {
+      console.log('🔄 getLignesByArret - Appel API pour arrêt', arretId);
+      const response = await api.get(`/transport/arrets/${arretId}/lignes/`);
+      console.log('✅ getLignesByArret - Réponse:', response.data.length, 'lignes');
+      return response.data;
+    } catch (error) {
+      console.error('❌ getLignesByArret - Erreur:', error);
+      throw error;
+    }
+  },
+
+  getArretsByLigne: async (ligneId) => {
+    try {
+      console.log('🔄 getArretsByLigne - Appel API pour ligne', ligneId);
+      const response = await api.get(`/transport/lignes/${ligneId}/arrets/`);
+      console.log('✅ getArretsByLigne - Réponse:', response.data.length, 'arrêts');
+      return response.data;
+    } catch (error) {
+      console.error('❌ getArretsByLigne - Erreur:', error);
+      throw error;
+    }
+  },
+
+  // ===== ITINÉRAIRES =====
+
+  findItineraire: async (fromArretId, toArretId) => {
+    try {
+      const response = await api.get('/transport/itineraire/', {
+        params: { from: fromArretId, to: toArretId },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('❌ findItineraire - Erreur:', error);
+      throw error;
+    }
+  },
+
+  findItineraireFromPosition: async (lat, lng, toArretId) => {
+    try {
+      const response = await api.get('/transport/itineraire/from-position/', {
+        params: { lat, lng, to: toArretId },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('❌ findItineraireFromPosition - Erreur:', error);
+      throw error;
+    }
+  },
+
+  findNearestArret: async (lat, lng) => {
+    try {
+      const response = await api.get('/transport/arrets/nearest/', {
+        params: { lat, lng },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('❌ findNearestArret - Erreur:', error);
+      throw error;
+    }
+  },
+
+  // ===== VILLES / QUARTIERS =====
+
   getAllVilles: async () => {
     try {
-      const response = await api.get('/localisation/villes/');
-      return response;
+      const response = await api.get('/transport/villes/');
+      return response.data;
     } catch (error) {
-      console.error('Error fetching villes:', error);
+      console.error('❌ getAllVilles - Erreur:', error);
       throw error;
     }
   },
 
-  // Ville par ID
-  getVilleById: async (id) => {
+  getQuartiersByVille: async (villeId) => {
     try {
-      const response = await api.get(`/localisation/villes/${id}/`);
-      return response;
+      const response = await api.get(`/transport/villes/${villeId}/quartiers/`);
+      return response.data;
     } catch (error) {
-      console.error(`Error fetching ville ${id}:`, error);
-      throw error;
-    }
-  },
-
-  // Créer une ville
-  createVille: async ({ nomVille, codePostal, pays }) => {
-    try {
-      const payload = { nomVille, codePostal, pays };
-      const response = await api.post('/localisation/villes/', payload);
-      return response;
-    } catch (error) {
-      console.error('Error creating ville:', error);
-      throw error;
-    }
-  },
-
-  // ========== GEOLOCALISATION BUS (si endpoints présents) ==========
-
-  // Bus proches
-  getNearbyBuses: async (latitude, longitude, radius = 5000) => {
-    try {
-      const response = await api.get('/localisation/nearby/', {
-        params: { lat: latitude, lng: longitude, radius },
-      });
-      return response;
-    } catch (error) {
-      console.error('Error fetching nearby buses:', error);
-      throw error;
-    }
-  },
-
-  // Mettre à jour la position d'un bus
-  updateBusLocation: async (busId, latitude, longitude) => {
-    try {
-      const response = await api.post('/localisation/update/', {
-        bus_id: busId,
-        latitude,
-        longitude,
-      });
-      return response;
-    } catch (error) {
-      console.error('Error updating bus location:', error);
+      console.error('❌ getQuartiersByVille - Erreur:', error);
       throw error;
     }
   },

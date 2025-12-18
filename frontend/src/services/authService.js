@@ -1,62 +1,59 @@
-// src/services/authService.js - VERSION COMPLÈTE
-const API_URL = 'http://localhost:8000/api';
+// services/authService.js
+import axios from 'axios';
 
-export const authService = {
-  // Connexion
-  async login(username, password) {
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+
+const authService = {
+  login: async (username, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      const response = await axios.post(`${API_BASE_URL}/token/`, {
+        username,
+        password
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Token reçu');
-        
-        localStorage.setItem('access_token', data.access);
-        localStorage.setItem('refresh_token', data.refresh);
-        
-        return { success: true, data };
-      } else {
-        const error = await response.json();
-        return { success: false, error: error.detail || 'Identifiants incorrects' };
+      if (response.data) {
+        // ✅ Récupérer les infos utilisateur complètes
+        const userResponse = await axios.get(`${API_BASE_URL}/user/profile/`, {
+          headers: {
+            'Authorization': `Bearer ${response.data.access}`
+          }
+        });
+
+        return {
+          ok: true,
+          access: response.data.access,
+          refresh: response.data.refresh,
+          user: {
+            ...userResponse.data,
+            // ✅ S'assurer que le rôle est bien présent
+            role: userResponse.data.role || userResponse.data.user_role,
+            is_admin: userResponse.data.is_admin || userResponse.data.is_staff || false
+          }
+        };
       }
     } catch (error) {
-      console.error('❌ Erreur login:', error);
-      return { success: false, error: 'Erreur de connexion' };
+      return {
+        ok: false,
+        error: error.response?.data?.detail || 'Erreur de connexion'
+      };
     }
   },
 
-  // ✅ Vérifie si le token est valide
-  isAuthenticated() {
-    const token = localStorage.getItem('access_token');
-    if (!token) return false;
-
+  // ✅ Nouvelle fonction pour obtenir le rôle
+  getUserRole: async () => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const exp = payload.exp * 1000;
-      const isValid = Date.now() < exp;
-      
-      console.log('🔐 Token valide:', isValid);
-      return isValid;
-    } catch (e) {
-      console.error('❌ Token invalide:', e);
-      return false;
+      const token = localStorage.getItem('access_token');
+      const response = await axios.get(`${API_BASE_URL}/user/role/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting user role:', error);
+      return null;
     }
-  },
-
-  // Déconnexion
-  logout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-  },
-
-  // Récupérer le token
-  getToken() {
-    return localStorage.getItem('access_token');
-  },
+  }
 };
 
 export default authService;

@@ -1,6 +1,6 @@
 # backend/transport/serializers.py
 from rest_framework import serializers
-from .models import Bus, Trajet, TrajetArret
+from .models import Bus, Trajet, TrajetArret, PositionBus
 from localisation.models import Arret
 
 # ========== ARRET (inline) ==========
@@ -175,3 +175,51 @@ class BusCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"trajet": f"Erreur lors de la création du trajet: {e}"})
             
         return bus
+
+class BusMapSerializer(serializers.ModelSerializer):
+    primus_nom = serializers.CharField(source='primus.nomArret', read_only=True)
+    terminus_nom = serializers.CharField(source='terminus.nomArret', read_only=True)
+    ville_nom = serializers.CharField(source='villeRef.nomVille', read_only=True)
+
+    class Meta:
+        model = Bus
+        fields = [
+            'id',
+            'numeroBus',
+            'ville_nom',
+            'quartier',
+            'primus_nom',
+            'terminus_nom',
+            'current_latitude',
+            'current_longitude',
+            'status',
+            'frais',
+        ]
+
+
+class PositionBusSerializer(serializers.ModelSerializer):
+    bus_numero = serializers.CharField(source='bus.numeroBus', read_only=True)
+
+    class Meta:
+        model = PositionBus
+        fields = ['id', 'bus', 'bus_numero', 'latitude', 'longitude', 'timestamp']
+
+
+class TrajetDetailSerializer(serializers.ModelSerializer):
+    arrets = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trajet
+        fields = ['id', 'busRef', 'typeTrajet', 'arrets']
+
+    def get_arrets(self, obj):
+        tas = TrajetArret.objects.filter(trajetRef=obj).select_related('arretRef').order_by('ordrePassage')
+        return [
+            {
+                'id': ta.arretRef.id,
+                'nom': ta.arretRef.nomArret,
+                'latitude': ta.arretRef.latitude,
+                'longitude': ta.arretRef.longitude,
+            }
+            for ta in tas
+        ]

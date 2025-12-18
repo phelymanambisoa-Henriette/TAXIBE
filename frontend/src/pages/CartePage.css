@@ -1,0 +1,225 @@
+/* src/pages/CartePage.css */
+
+.carte-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #f3f4f6;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* SIDEBAR */
+.carte-sidebar {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  margin: 0;
+  color: #111827;
+}
+
+.sidebar-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* Sections sidebar */
+.sidebar-section h3 {
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 0 0 8px;
+}
+
+.bus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bus-item {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.bus-item:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.bus-item.selected {
+  background: #e0f2fe;
+  border-color: #3b82f6;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+}
+
+.bus-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.bus-trajet {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.bus-trajet .arrow {
+  color: #9ca3af;
+}
+
+.bus-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.bus-meta .ville {
+  font-weight: 600;
+}
+
+.bus-meta .quartier {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+
+/* Toggles */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.toggle-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-row input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+/* Footer actions */
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 999px;
+  border: none;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* MAIN */
+.carte-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.carte-toolbar {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.carte-toolbar h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  margin: 0;
+  color: #111827;
+}
+
+.carte-toolbar p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.carte-wrapper {
+  width: 100%;
+  height: calc(100vh - 150px);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .carte-page {
+    grid-template-columns: 1fr;
+  }
+
+  .carte-sidebar {
+    order: 2;
+  }
+
+  .carte-main {
+    order: 1;
+  }
+
+  .carte-wrapper {
+    height: 60vh;
+  }
+}/* src/components/Carte/CarteInteractive.css */

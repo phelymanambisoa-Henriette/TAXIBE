@@ -181,3 +181,145 @@
   }
   .map-wrapper { height: 60%; order: 1; }
 }
+
+
+
+/* src/components/map/BusMap.css */
+
+.bus-map-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.leaflet-map-full {
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+}
+
+/* Loading */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #01c6b2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error */
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+/* Itinéraire info */
+.itineraire-info {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 300px;
+}
+
+.itineraire-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #1F2937;
+}
+
+.itineraire-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #4B5563;
+}
+
+.btn-clear-itineraire {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #01c6b2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-clear-itineraire:hover {
+  background: #019d8f;
+}
+
+/* Popup content */
+.popup-content {
+  min-width: 150px;
+}
+
+.popup-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: #1F2937;
+}
+
+.popup-content p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #4B5563;
+}
+
+.badge-depart {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.badge-arrivee {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Label marker */
+.bus-label-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .itineraire-info {
+    max-width: calc(100% - 20px);
+    font-size: 13px;
+  }
+}

@@ -13,7 +13,8 @@ const Login = () => {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // ✅ Ceci permet une redirection propre
+  const navigate = useNavigate();
+  
   const submit = async (e) => {
     e.preventDefault();
     setErr('');
@@ -26,7 +27,9 @@ const Login = () => {
       if (res && !res.ok) {
         setErr(res.error || 'Identifiants incorrects');
       } else {
-        navigate('/'); 
+        // ✅ CORRECTION: Marquer comme visité et rediriger vers /home
+        localStorage.setItem('taxibe_visited', 'true');
+        navigate('/home'); // ✅ Changé de '/' vers '/home'
       }
 
     } catch (error) {

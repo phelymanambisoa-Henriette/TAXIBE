@@ -1,18 +1,21 @@
-# utilisateur/views.py (CORRIGÉ - SANS DOUBLON)
+# utilisateur/views.py
 
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.permissions import IsAuthenticated  # ✅ Import ajouté
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.db.models import Q  # ✅ Import ajouté
 
 from .models import Utilisateur
 from .serializers import (
     UtilisateurSerializer,
     PasswordChangeSerializer,
     UserRegistrationSerializer,
+    UserSerializer,  # ✅ Import ajouté
 )
 
 User = get_user_model()
@@ -36,11 +39,17 @@ class MeView(APIView):
             serializer = UtilisateurSerializer(profile, context={'request': request})
             data = serializer.data
             
+            # ✅ Ajouter les infos admin
             data['id'] = request.user.id
             data['username'] = request.user.username
             data['email'] = request.user.email
             data['is_staff'] = request.user.is_staff
             data['is_superuser'] = request.user.is_superuser
+            data['is_admin'] = (
+                request.user.is_staff or 
+                request.user.is_superuser or 
+                profile.role == 'admin'
+            )
             
             if profile.avatar:
                 data['avatar'] = request.build_absolute_uri(profile.avatar.url)
@@ -85,6 +94,11 @@ class MeView(APIView):
             updated_data['email'] = user.email
             updated_data['is_staff'] = user.is_staff
             updated_data['is_superuser'] = user.is_superuser
+            updated_data['is_admin'] = (
+                user.is_staff or 
+                user.is_superuser or 
+                profile.role == 'admin'
+            )
             
             if profile.avatar:
                 updated_data['avatar'] = request.build_absolute_uri(profile.avatar.url)
@@ -151,7 +165,7 @@ class UpdateProfileView(APIView):
 
 
 # ============================
-# 📊 3. Vue Stats (UNE SEULE FOIS)
+# 📊 3. Vue Stats
 # ============================
 class UserStatsView(APIView):
     """Vue pour les statistiques utilisateur"""
@@ -254,7 +268,6 @@ def ensure_profile_view(request):
 # ============================
 # 🌐 7. Admin ViewSet
 # ============================
-
 class UtilisateurViewSet(viewsets.ModelViewSet):
     queryset = Utilisateur.objects.select_related('user').all()
     serializer_class = UtilisateurSerializer
@@ -326,3 +339,68 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
         user.set_password(temp_password)
         user.save()
         return Response({'id': user.id, 'temp_password': temp_password})
+
+
+# ============================
+# 👤 8. User Profile & Role Views
+# ============================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    """✅ Retourne les infos de l'utilisateur connecté avec son rôle"""
+    try:
+        # Utiliser le UserSerializer pour avoir toutes les infos
+        serializer = UserSerializer(request.user)
+        data = serializer.data
+        
+        # Ajouter explicitement is_admin
+        profile = Utilisateur.objects.filter(user=request.user).first()
+        data['is_admin'] = (
+            request.user.is_staff or 
+            request.user.is_superuser or 
+            (profile and profile.role == 'admin')
+        )
+        
+        return Response(data)
+    except Exception as e:
+        print(f"❌ Erreur user_profile: {e}")
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_role(request):
+    """✅ Retourne uniquement le rôle de l'utilisateur"""
+    try:
+        # Récupérer le profil
+        profile = Utilisateur.objects.filter(user=request.user).first()
+        
+        # Déterminer le rôle
+        if profile:
+            role = profile.role
+        else:
+            role = 'user'
+        
+        # Vérifier si admin
+        is_admin = (
+            request.user.is_staff or 
+            request.user.is_superuser or 
+            role == 'admin'
+        )
+        
+        return Response({
+            'username': request.user.username,
+            'role': role,
+            'is_admin': is_admin,
+            'is_staff': request.user.is_staff,
+            'is_superuser': request.user.is_superuser
+        })
+    except Exception as e:
+        print(f"❌ Erreur user_role: {e}")
+        return Response({
+            'username': request.user.username,
+            'role': 'user',
+            'is_admin': False,
+            'is_staff': False,
+            'is_superuser': False
+        }, status=200)

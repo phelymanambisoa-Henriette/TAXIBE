@@ -1,0 +1,349 @@
+/* src/styles/darkMode.css */
+
+/* ========== VARIABLES CSS POUR LES THÈMES ========== */
+
+:root {
+  /* Light Mode (par défaut) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #fafafa;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f0;
+  
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  
+  --accent-primary: #667eea;
+  --accent-secondary: #764ba2;
+  
+  --success: #4CAF50;
+  --error: #F44336;
+  --warning: #FFC107;
+  --info: #2196F3;
+  
+  /* Carte */
+  --carte-bg: #ffffff;
+  --carte-sidebar-bg: #ffffff;
+  --carte-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ========== DARK MODE ========== */
+
+.dark-mode {
+  /* Backgrounds */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --bg-card: #2d2d2d;
+  --bg-hover: #353535;
+  
+  /* Textes */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  
+  /* Bordures */
+  --border-color: #404040;
+  --border-light: #353535;
+  
+  /* Ombres */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  
+  /* Accents (restent identiques) */
+  --accent-primary: #7c8ef5;
+  --accent-secondary: #8b5cc7;
+  
+  /* Carte */
+  --carte-bg: #1a1a1a;
+  --carte-sidebar-bg: #242424;
+  --carte-header-bg: linear-gradient(135deg, #7c8ef5 0%, #8b5cc7 100%);
+}
+
+/* ========== APPLICATION GLOBALE ========== */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Cartes et containers */
+.card,
+.search-container,
+.bus-item,
+.itineraire-card {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Inputs et formulaires */
+input,
+select,
+textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Hover states */
+.bus-item:hover,
+.sidebar-link:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Borders */
+hr,
+.divider {
+  border-color: var(--border-color);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+/* Links */
+a {
+  color: var(--accent-primary);
+}
+
+a:hover {
+  color: var(--accent-secondary);
+}
+
+/* Buttons (conservent leurs couleurs sauf les secondaires) */
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Tables */
+table {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+thead {
+  background-color: var(--bg-secondary);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Modals et popups */
+.modal-content,
+.popup-content {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Loading et skeletons */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Scrollbar (Webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-secondary);
+}
+
+/* ========== TRANSITIONS ========== */
+
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease;
+}
+
+/* Désactiver les transitions pour certains éléments */
+.no-transition,
+.leaflet-container,
+button:active,
+input:focus {
+  transition: none !important;
+}
+
+/* ========== SPÉCIFIQUES COMPONENTS ========== */
+
+/* Sidebar */
+.dark-mode .sidebar {
+  background-color: var(--carte-sidebar-bg);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .sidebar-logo {
+  background-color: var(--bg-tertiary);
+}
+
+.dark-mode .sidebar-link {
+  color: var(--text-secondary);
+}
+
+.dark-mode .sidebar-link.active {
+  background-color: var(--bg-hover);
+  color: var(--accent-primary);
+}
+
+.dark-mode .sidebar-link:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Search page */
+.dark-mode .search-header {
+  background: var(--carte-header-bg);
+}
+
+.dark-mode .search-input-group label {
+  color: var(--text-primary);
+}
+
+.dark-mode .search-error {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #ff6b6b;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Carte interactive */
+.dark-mode .carte-sidebar {
+  background-color: var(--carte-sidebar-bg);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .sidebar-header {
+  background: var(--carte-header-bg);
+}
+
+.dark-mode .bus-item {
+  background-color: var(--bg-tertiary);
+}
+
+.dark-mode .bus-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.dark-mode .bus-item.active {
+  background-color: rgba(124, 142, 245, 0.2);
+  border-color: var(--accent-primary);
+}
+
+/* Leaflet popup en dark mode */
+.dark-mode .leaflet-popup-content-wrapper {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .leaflet-popup-tip {
+  background-color: var(--bg-card) !important;
+}
+
+.dark-mode .popup-arret h4 {
+  color: var(--text-primary);
+}
+
+.dark-mode .popup-arret .distance {
+  background-color: rgba(124, 142, 245, 0.2);
+  color: var(--accent-primary);
+}
+
+/* Itinéraire sélectionné */
+.dark-mode .itineraire-selectionne {
+  background: var(--carte-header-bg);
+}
+
+.dark-mode .itineraire-details-carte {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* User location info */
+.dark-mode .user-location-info {
+  background-color: rgba(66, 133, 244, 0.1);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .geo-error {
+  background-color: rgba(255, 193, 7, 0.15);
+  border-bottom-color: var(--warning);
+}
+
+.dark-mode .geo-error small {
+  color: #ffd54f;
+}
+
+/* Checkbox */
+.dark-mode .checkbox-label {
+  color: var(--text-primary);
+}
+
+/* Loading et error states */
+.dark-mode .carte-loading,
+.dark-mode .carte-error {
+  background-color: var(--bg-primary);
+}
+
+.dark-mode .spinner {
+  border-color: var(--bg-tertiary);
+  border-top-color: var(--accent-primary);
+}

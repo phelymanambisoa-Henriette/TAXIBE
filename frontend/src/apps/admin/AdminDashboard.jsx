@@ -316,9 +316,9 @@ const AdminDashboard = () => {
                 <button className="btn-quick" onClick={() => navigate('/admin/contributions')}>
                   <FaClipboardCheck /> Modérer Contributions
                 </button>
-                <button className="btn-quick" onClick={() => navigate('/admin/signalements')}>
+                {/*<button className="btn-quick" onClick={() => navigate('/admin/signalements')}>
                   <FaExclamationTriangle /> Voir Signalements
-                </button>
+                </button>*/}
                 <button className="btn-quick" onClick={() => navigate('/admin/utilisateurs')}>
                   <FaUsers /> Gérer Utilisateurs
                 </button>

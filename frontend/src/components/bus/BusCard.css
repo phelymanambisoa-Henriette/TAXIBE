@@ -1,180 +1,287 @@
+/* src/components/Bus/BusCard.css */
+
 .bus-card {
-  background: var(--color-background);
-  border-radius: var(--radius);
-  padding: var(--spacing);
-  box-shadow: var(--shadow-light);
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
 }
 
 .bus-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* Header */
 .bus-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--color-primary);
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
 }
 
 .bus-number {
-  font-size: 24px;
+  min-width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
   font-weight: bold;
-  color: var(--color-dark);
-  background: var(--color-primary);
-  padding: 8px 16px;
-  border-radius: 8px;
+  background: #01c6b2;
+  box-shadow: 0 2px 8px rgba(1, 198, 178, 0.3);
+}
+
+.bus-status {
+  font-size: 13px;
 }
 
 .status-indicator {
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
 .status-indicator.active {
-  color: #01c6b2;
+  background: #d4edda;
+  color: #155724;
 }
 
 .status-indicator.inactive {
-  color: #9e9e9e;
+  background: #f8d7da;
+  color: #721c24;
 }
 
+/* Body */
+.bus-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Route */
 .bus-route {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: var(--color-secondary);
-  border-radius: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .route-point {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .route-point .label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: 11px;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .route-point .value {
+  font-size: 14px;
+  color: #212529;
   font-weight: 500;
-  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .route-arrow {
-  color: var(--color-primary);
   font-size: 20px;
-}
-
-.bus-distance,
-.bus-arrival {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 8px;
-  background: #f0f8ff;
-  border-radius: 6px;
-}
-
-.distance-icon,
-.arrival-icon {
-  font-size: 18px;
-}
-
-.distance-value {
+  color: #01c6b2;
   font-weight: bold;
-  color: var(--color-dark);
 }
 
-.arrival-time {
-  color: var(--color-text);
+/* Section Trajets */
+.trajets-section {
+  flex: 1;
 }
 
-.bus-info {
+.trajets-title {
+  font-size: 13px;
+  color: #495057;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.trajets-list {
   display: flex;
-  gap: 16px;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.info-item {
+/* Trajet Item */
+.trajet-item {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  border-left: 4px solid;
+  transition: all 0.2s;
 }
 
-.info-icon {
-  font-size: 16px;
+.trajet-item:hover {
+  background: #e9ecef;
 }
 
-.info-value {
-  font-size: 14px;
-  color: var(--color-text);
+.trajet-item.aller {
+  border-left-color: #3498db;
+  background: #ebf5fb;
 }
 
-.bus-crowd {
-  margin-top: 12px;
-  padding: 8px;
-  background: var(--color-secondary);
-  border-radius: 6px;
+.trajet-item.retour {
+  border-left-color: #e74c3c;
+  background: #fadbd8;
 }
 
-.crowd-label {
-  font-size: 14px;
-  color: #666;
-  margin-right: 8px;
+.trajet-item.missing {
+  border-left-color: #adb5bd;
+  background: #e9ecef;
+  color: #6c757d;
+  font-size: 13px;
+  font-style: italic;
 }
 
-.crowd-indicator {
-  display: inline-block;
-}
-
-.crowd-level {
+.trajet-icon {
   font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
-/* Mode sombre */
-@media (prefers-color-scheme: dark) {
-  .bus-card {
-    background: var(--dark-color-background);
-    border-color: #333;
-  }
-  
-  .bus-number {
-    background: var(--color-primary);
-    color: var(--dark-color-background);
-  }
-  
-  .route-point .value {
-    color: var(--dark-color-text);
-  }
-  
-  .bus-distance,
-  .bus-arrival {
-    background: rgba(173, 211, 194, 0.1);
-  }
+.trajet-item.aller .trajet-icon {
+  color: #3498db;
+}
+
+.trajet-item.retour .trajet-icon {
+  color: #e74c3c;
+}
+
+.trajet-item.missing .trajet-icon {
+  color: #adb5bd;
+}
+
+.trajet-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.trajet-type {
+  font-weight: 600;
+  font-size: 14px;
+  color: #212529;
+  margin-bottom: 4px;
+}
+
+.trajet-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trajet-stops {
+  font-size: 12px;
+  font-weight: 500;
+  color: #495057;
+  background: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  align-self: flex-start;
+}
+
+.trajet-route {
+  font-size: 11px;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-trajets {
+  padding: 16px;
+  text-align: center;
+  background: #fff3cd;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Footer */
+.bus-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+  margin-top: auto;
+}
+
+.bus-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-label {
+  font-size: 11px;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #27ae60;
+}
+
+.view-btn {
+  padding: 8px 16px;
+  background: #01c6b2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  background: #019d8f;
+  transform: translateX(2px);
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .bus-route {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .route-arrow {
     transform: rotate(90deg);
+  }
+
+  .trajet-route {
+    font-size: 10px;
   }
 }

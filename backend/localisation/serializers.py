@@ -5,7 +5,7 @@ from .models import Ville, Quartier, Arret
 class ArretSerializer(serializers.ModelSerializer):
     class Meta:
         model = Arret
-        fields = '__all__'
+        fields = ['id', 'nomArret', 'latitude', 'longitude']
 
 class QuartierSerializer(serializers.ModelSerializer):
     arrets = ArretSerializer(many=True, read_only=True, source='arret_set')

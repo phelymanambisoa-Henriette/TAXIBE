@@ -1,36 +1,138 @@
 // src/components/layout/Header.jsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { HiSearch, HiHome, HiQuestionMarkCircle, HiChevronDown, HiLogout, HiUser, HiCog } from 'react-icons/hi';
-import { FaBus, FaBell, FaEllipsisV, FaUser as FaUserIcon, FaSun, FaMoon } from 'react-icons/fa';
+import { 
+  HiSearch, 
+  HiHome, 
+  HiQuestionMarkCircle, 
+  HiChevronDown, 
+  HiLogout, 
+  HiUser, 
+  HiCog 
+} from 'react-icons/hi';
+import { 
+  FaBell, 
+  FaEllipsisV, 
+  FaUser as FaUserIcon 
+} from 'react-icons/fa';
 
-import { interactionService } from '../../services/interactionService';
-import { contributionService } from '../../services/contributionService';
-
+import { useLanguage } from '../../contexts/LanguageContext'; // ← UNIQUE import
 import './Header.css';
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { t, language, setLanguage } = useLanguage(); // ← Hook langue global
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Nouveaux états séparés pour le contrôle des menus
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false); // Menu Profil/Déconnexion
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false); // Menu 3 points (Paramètres/Aide)
-  
-  // Refs pour la fermeture au clic hors zone
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const notificationsRef = useRef(null);
-  const profileToggleRef = useRef(null); // Ref pour le bouton Profil/Nom
-  const settingsToggleRef = useRef(null); // Ref pour le bouton 3 points
+  const profileToggleRef = useRef(null);
+  const settingsToggleRef = useRef(null);
 
   const isActive = (path) => (location.pathname === path ? 'active' : '');
 
-  // Fermer les menus au clic extérieur (Rendu plus robuste)
+  const handleResetWelcome = () => {
+    localStorage.removeItem('taxibe_visited');
+    setShowSettingsMenu(false);
+    navigate('/welcome');
+  };
+
+  const handleThemeToggle = () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    setShowSettingsMenu(false);
+  };
+
+  const clearLocalCacheSafe = () => {
+    try {
+      const keysToKeep = ['theme', 'taxibe_visited', 'access_token', 'refresh_token', 'language'];
+      const allKeys = Object.keys(localStorage);
+      allKeys.forEach((key) => {
+        if (!keysToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+      alert('Cache effacé avec succès');
+      setShowSettingsMenu(false);
+    } catch (error) {
+      console.error('Erreur nettoyage cache:', error);
+    }
+  };
+
+  const handleSettingsAction = (action) => {
+    if (action === 'theme') return handleThemeToggle();
+    if (action === 'cache') return clearLocalCacheSafe();
+    if (action === 'reset-welcome') return handleResetWelcome();
+    navigate(action);
+    setShowSettingsMenu(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setShowProfileMenu(false);
+    navigate('/');
+  };
+
+  const timeAgo = (timestamp) => {
+    if (!timestamp) return '';
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diff = Math.floor((now - time) / 1000);
+    if (diff < 60) return 'À l’instant';
+    if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;
+    return `Il y a ${Math.floor(diff / 86400)} j`;
+  };
+
+  const loadNotifications = async () => {
+    if (!isAuthenticated) return;
+    const mockNotifs = [
+      {
+        id: 1,
+        type: 'info',
+        message: 'Bienvenue sur TaxiBe !',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        isRead: false,
+      },
+    ];
+    setNotifications(mockNotifs);
+    setUnreadCount(mockNotifs.filter((n) => !n.isRead).length);
+  };
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadCount(0);
+  };
+
+  const handleNotificationClick = (notif) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setShowNotifications(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Clôture des menus de manière indépendante
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
@@ -45,44 +147,11 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Logique du Thème
-  const handleThemeToggle = () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  };
-  
-  const clearLocalCacheSafe = () => { /* Logique Cache */ };
-  
-  // Logique de navigation/fermeture pour le menu 3 points
-  const handleSettingsAction = (path) => {
-      // Ferme le menu 3 points
-      setShowSettingsMenu(false); 
-      
-      if (path === 'theme') {
-          handleThemeToggle();
-      } else if (path === 'cache') {
-          clearLocalCacheSafe();
-      } else {
-          navigate(path);
-      }
-  };
-
-  const handleLogout = () => {
-    logout();
-    setShowProfileMenu(false);
-  };
-
-  // Logique Notifs (simplifiée pour le fonctionnement des boutons)
-  const loadNotifications = async () => { /* ... */ };
-  useEffect(() => { loadNotifications(); const id = setInterval(loadNotifications, 30000); return () => clearInterval(id); }, [isAuthenticated]);
-  const unreadCount = 1; // On garde un count pour l'affichage
-  const itemsNotif = useMemo(() => [], []); 
-  const markAllRead = () => { /* ... */ };
-  const handleNotificationClick = (item) => { /* ... */ };
-  const timeAgo = () => '';
-
+  const languageOptions = [
+    { code: 'fr', label: 'Français' },
+    { code: 'mg', label: 'Malagasy' },
+    { code: 'en', label: 'English' },
+  ];
 
   return (
     <header className="header">
@@ -90,71 +159,165 @@ const Header = () => {
         
         {/* NAVIGATION */}
         <nav className="header-nav">
-          <Link to="/" className={`nav-link ${isActive('/')}`}>
-            <HiHome /> Accueil
+          <Link to="/home" className={`nav-link ${isActive('/home')}`}>
+            <HiHome /> {t('nav.home') || 'Accueil'}
           </Link>
           <Link to="/search" className={`nav-link ${isActive('/search')}`}>
-            <HiSearch /> Recherche
+            <HiSearch /> {t('nav.search') || 'Recherche'}
           </Link>
         </nav>
 
         {/* ACTIONS DROITE */}
         <div className="header-actions">
+
           {!isAuthenticated ? (
-            <div className="auth-buttons"> {/* ... */} </div>
+            <div className="auth-buttons">
+              <Link to="/register" className="btn-register">
+                S'inscrire
+              </Link>
+            </div>
           ) : (
             <div className="user-section">
-              
-
-              {/* Cloche notifications */}
+              {/* NOTIFS */}
               <div className="client-notif-container" ref={notificationsRef}>
                 <button
-                  className={`client-bell-btn ${showNotifications ? 'active' : ''} ${unreadCount > 0 ? 'ringing' : ''}`}
-                  onClick={() => setShowNotifications((s) => !s)}
-                  aria-label="Notifications" title="Notifications"
+                  className={`client-bell-btn ${showNotifications ? 'active' : ''} ${
+                    unreadCount > 0 ? 'ringing' : ''
+                  }`}
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    setShowProfileMenu(false);
+                    setShowSettingsMenu(false);
+                  }}
+                  aria-label={t('nav.notifications') || 'Notifications'}
                 >
                   <FaBell />
-                  {unreadCount > 0 && (<span className="client-badge ping">{unreadCount}</span>)}
+                  {unreadCount > 0 && (
+                    <span className="client-badge ping">{unreadCount}</span>
+                  )}
                 </button>
 
                 {showNotifications && (
-                  <div className="notification-panel"> {/* ... Notif content ... */} </div>
-                )}
-              </div>
-
-              {/* Paramètres (3 points) */}
-              <div className="client-settings-container" ref={settingsToggleRef}> {/* 🔥 Ref OK */}
-                <button
-                  className={`client-ellipsis-btn ${showSettingsMenu ? 'active' : ''}`}
-                  onClick={() => { setShowSettingsMenu((s) => !s); setShowProfileMenu(false); }} /* 🔥 Faux tous les autres menus */
-                  title="Paramètres et Aide"
-                  aria-label="Paramètres et Aide"
-                >
-                  <FaEllipsisV />
-                </button>
-
-                {showSettingsMenu && (
-                  <div className="client-settings-panel">
-                    {/* Les actions spécifiques du menu 3 points */}
-                    <Link className="settings-item" to="/settings" onClick={() => handleSettingsAction('/settings')}>
-                      <HiCog /> Préférences
-                    </Link>
-                    <Link className="settings-item" to="/help" onClick={() => handleSettingsAction('/help')}>
-                      <HiQuestionMarkCircle /> Aide & Support
-                    </Link>
+                  <div className="notification-panel">
+                    <div className="notif-header">
+                      <h4>{t('nav.notifications') || 'Notifications'}</h4>
+                      {unreadCount > 0 && (
+                        <button className="mark-all-read" onClick={markAllRead}>
+                          {t('nav.markAllRead') || 'Tout marquer lu'}
+                        </button>
+                      )}
+                    </div>
+                    <div className="notif-list">
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            className={`notif-item ${notif.isRead ? 'read' : 'unread'}`}
+                            onClick={() => handleNotificationClick(notif)}
+                          >
+                            <p>{notif.message}</p>
+                            <span className="notif-time">{timeAgo(notif.timestamp)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="no-notif">
+                          {t('nav.noNotifications') || 'Aucune notification'}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Menu Utilisateur PRINCIPAL (Profil et Déconnexion) */}
-              <div className="user-menu-container" ref={profileToggleRef}> {/* 🔥 Ref OK */}
+              {/* PARAMÈTRES */}
+              <div className="client-settings-container" ref={settingsToggleRef}>
+                <button
+                  className={`client-ellipsis-btn ${showSettingsMenu ? 'active' : ''}`}
+                  onClick={() => {
+                    setShowSettingsMenu(!showSettingsMenu);
+                    setShowProfileMenu(false);
+                    setShowNotifications(false);
+                  }}
+                  title={t('nav.preferences') || 'Préférences'}
+                >
+                  <FaEllipsisV />
+                </button>
+                {showSettingsMenu && (
+                  <div className="client-settings-panel">
+                    <button
+                      className="settings-item"
+                      onClick={() => handleSettingsAction('/settings')}
+                    >
+                      <HiCog /> {t('nav.preferences') || 'Préférences'}
+                    </button>
+                    <button
+                      className="settings-item"
+                      onClick={() => handleSettingsAction('/help')}
+                    >
+                      <HiQuestionMarkCircle /> {t('nav.help') || 'Aide & Support'}
+                    </button>
+                    <button
+                      className="settings-item"
+                      onClick={() => handleSettingsAction('theme')}
+                    >
+                      🌓 {t('nav.theme') || 'Changer thème'}
+                    </button>
+                    <button
+                      className="settings-item"
+                      onClick={() => handleSettingsAction('reset-welcome')}
+                    >
+                      🔄 {t('nav.resetWelcome') || 'Revoir intro'}
+                    </button>
+
+                    <div className="menu-separator"></div>
+                    <div className="settings-section-title">
+                      {t('nav.language') || 'Langue'}
+                    </div>
+                    <div className="settings-lang-options">
+                      {languageOptions.map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          className={
+                            'settings-lang-btn' +
+                            (language === lang.code ? ' active' : '')
+                          }
+                          onClick={() => setLanguage(lang.code)}
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="menu-separator"></div>
+                    <button
+                      className="settings-item danger"
+                      onClick={() => handleSettingsAction('cache')}
+                    >
+                      🗑️ {t('nav.clearCache') || 'Effacer cache'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* PROFIL */}
+              <div className="user-menu-container" ref={profileToggleRef}>
                 <button
                   className={`user-profile-toggle ${showProfileMenu ? 'active' : ''}`}
-                  onClick={() => { setShowProfileMenu((s) => !s); setShowSettingsMenu(false); }} /* 🔥 Faux les autres menus */
-                  aria-label="Menu utilisateur"
+                  onClick={() => {
+                    setShowProfileMenu(!showProfileMenu);
+                    setShowSettingsMenu(false);
+                    setShowNotifications(false);
+                  }}
                 >
                   <div className="user-avatar">
-                    {user?.avatar ? (<img src={user.avatar} alt="avatar" />) : (<span>{user?.username?.charAt(0).toUpperCase() || <FaUserIcon />}</span>)}
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="avatar" />
+                    ) : (
+                      <span>
+                        {user?.username?.charAt(0).toUpperCase() || <FaUserIcon />}
+                      </span>
+                    )}
                   </div>
                   <span className="user-name">{user?.username || 'User'}</span>
                   <HiChevronDown className="toggle-arrow" />
@@ -162,32 +325,41 @@ const Header = () => {
 
                 {showProfileMenu && (
                   <div className="user-menu-panel profile-only">
-                    
                     <div className="user-profile-summary">
                       <div className="user-avatar medium">
-                        {user?.avatar ? (<img src={user.avatar} alt="avatar" />) : (<span>{user?.username?.charAt(0).toUpperCase()}</span>)}
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="avatar" />
+                        ) : (
+                          <span>{user?.username?.charAt(0).toUpperCase()}</span>
+                        )}
                       </div>
                       <div className="user-details">
                         <h4>{user?.username || 'User'}</h4>
                         <p>{user?.email || ''}</p>
                       </div>
                     </div>
-                    
                     <div className="menu-separator"></div>
-
-                    <Link to="/profil" className="menu-item" onClick={() => setShowProfileMenu(false)}>
-                      <HiUser className="item-icon" /> Mon profil
+                    <Link
+                      to="/profil"
+                      className="menu-item"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      <HiUser className="item-icon" /> {t('nav.profile') || 'Mon profil'}
                     </Link>
-
+                    <Link
+                      to="/profil/historique"
+                      className="menu-item"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      🕓 Historique des recherches
+                    </Link>
                     <div className="menu-separator"></div>
-
                     <button className="menu-item logout" onClick={handleLogout}>
-                      <HiLogout className="item-icon" /> Déconnexion
+                      <HiLogout className="item-icon" /> {t('nav.logout') || 'Déconnexion'}
                     </button>
                   </div>
                 )}
               </div>
-
             </div>
           )}
         </div>

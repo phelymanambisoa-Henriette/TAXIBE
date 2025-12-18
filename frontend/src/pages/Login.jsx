@@ -1,8 +1,8 @@
-// src/apps/utilisateur/Login.jsx - VERSION CORRIGÉE
+// src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import './utilisateur.css';
+import { useAuth } from '../contexts/AuthContext'; // Changé de '../../contexts' à '../contexts'
+import './Login.css'; // Changé de './utilisateur.css' à './Login.css'
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();

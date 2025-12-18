@@ -14,18 +14,19 @@ User = get_user_model()
 # =============================================================
 class UtilisateurSerializer(serializers.ModelSerializer):
     # Champs User liés
-    id = serializers.IntegerField(source='user.id', read_only=True)              # ✅ utilisé par AdminUsers (u.id)
+    id = serializers.IntegerField(source='user.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
-    is_active = serializers.BooleanField(source='user.is_active', read_only=True)  # ✅ utilisé par AdminUsers (u.is_active)
+    is_active = serializers.BooleanField(source='user.is_active', read_only=True)
     is_staff = serializers.BooleanField(source='user.is_staff', read_only=True)
     is_superuser = serializers.BooleanField(source='user.is_superuser', read_only=True)
     avatar_url = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()  # ✅ Ajout du champ is_admin
 
     class Meta:
         model = Utilisateur
         fields = [
-            'id',                      # ID du user, accessible côté frontend
+            'id',
             'user',
             'username',
             'email',
@@ -35,9 +36,10 @@ class UtilisateurSerializer(serializers.ModelSerializer):
             'reputation',
             'role',
             'date_derniere_connexion',
-            'is_active',              # état actif
+            'is_active',
             'is_staff',
             'is_superuser',
+            'is_admin',  # ✅ Ajouté dans les fields
         ]
         extra_kwargs = {
             'user': {'required': False, 'allow_null': True},
@@ -52,6 +54,21 @@ class UtilisateurSerializer(serializers.ModelSerializer):
             return obj.avatar.url
         return None
 
+    def get_is_admin(self, obj):
+        """✅ CORRECTION: Méthode correctement indentée"""
+        try:
+            # Vérifier si l'utilisateur est admin via plusieurs critères
+            if hasattr(obj, 'user'):
+                user = obj.user
+                return (
+                    user.is_staff or 
+                    user.is_superuser or 
+                    obj.role == 'admin'
+                )
+            return False
+        except:
+            return False
+
     def update(self, instance, validated_data):
         instance.nom = validated_data.get('nom', instance.nom)
         if 'avatar' in validated_data:
@@ -61,7 +78,64 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 
 
 # =============================================================
-# 2. CHANGEMENT DE MOT DE PASSE
+# 2. USER SERIALIZER (pour l'authentification)
+# =============================================================
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer pour le modèle User Django avec infos du profil"""
+    role = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()
+    reputation = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 
+            'username', 
+            'email', 
+            'first_name',
+            'last_name',
+            'is_staff', 
+            'is_superuser',
+            'role', 
+            'is_admin',
+            'reputation'
+        ]
+    
+    def get_role(self, obj):
+        """Récupérer le rôle depuis le profil Utilisateur"""
+        try:
+            profile = Utilisateur.objects.filter(user=obj).first()
+            if profile:
+                return profile.role
+            return 'user'
+        except:
+            return 'user'
+    
+    def get_is_admin(self, obj):
+        """Vérifier si l'utilisateur est admin"""
+        try:
+            profile = Utilisateur.objects.filter(user=obj).first()
+            return (
+                obj.is_staff or 
+                obj.is_superuser or 
+                (profile and profile.role == 'admin')
+            )
+        except:
+            return False
+    
+    def get_reputation(self, obj):
+        """Récupérer la réputation depuis le profil"""
+        try:
+            profile = Utilisateur.objects.filter(user=obj).first()
+            if profile:
+                return profile.reputation
+            return 0
+        except:
+            return 0
+
+
+# =============================================================
+# 3. CHANGEMENT DE MOT DE PASSE
 # =============================================================
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -86,7 +160,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 
 # =============================================================
-# 3. INSCRIPTION UTILISATEUR (CORRIGÉ POUR GÉRER LES DOUBLONS)
+# 4. INSCRIPTION UTILISATEUR
 # =============================================================
 class UserRegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)

@@ -9,7 +9,6 @@ import {
   FaArrowLeft,
   FaHistory,
   FaUsers,
-  FaExclamationTriangle,
   FaBus,
   FaSignOutAlt,
   FaBell,
@@ -18,9 +17,9 @@ import {
   FaTimes,
   FaChevronRight,
   FaUser,
-  FaEllipsisV
+  FaEllipsisV,
+  FaChevronDown // Icône ajoutée
 } from 'react-icons/fa';
-import { HiQuestionMarkCircle } from 'react-icons/hi';
 import './AdminLayout.css';
 
 // Services notifications
@@ -30,11 +29,15 @@ const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Notifs / Settings
+  // États pour les menus
   const [showNotif, setShowNotif] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false); // État ajouté
+  
+  // Références
   const notifRef = useRef(null);
   const settingsRef = useRef(null);
+  const profileToggleRef = useRef(null); // Référence ajoutée
 
   // Données des notifications
   const [pendingContribCount, setPendingContribCount] = useState(0);
@@ -67,8 +70,15 @@ const AdminLayout = () => {
   // Fermer dropdowns au clic externe
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotif(false);
-      if (settingsRef.current && !settingsRef.current.contains(e.target)) setShowSettings(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotif(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setShowSettings(false);
+      }
+      if (profileToggleRef.current && !profileToggleRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -132,9 +142,6 @@ const AdminLayout = () => {
           <NavLink to="/admin/contributions" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
             <FaClipboardList /> Contributions
           </NavLink>
-          <NavLink to="/admin/signalements" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
-            <FaExclamationTriangle /> Signalements
-          </NavLink>
 
           <p className="menu-label">SYSTÈME</p>
           <NavLink to="/admin/historiques" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
@@ -143,7 +150,7 @@ const AdminLayout = () => {
         </div>
 
         <div className="sidebar-footer">
-          <Link to="/" className="btn-back-site">
+          <Link to="/home" className="btn-back-site">
             <FaArrowLeft /> Retour Site
           </Link>
         </div>
@@ -158,16 +165,15 @@ const AdminLayout = () => {
           </div>
 
           <div className="topbar-right">
-            {/* Aide (séparée) */}
-            <Link to="/help" className="help-btn" title="Aide & Support" aria-label="Aide">
-              <HiQuestionMarkCircle />
-            </Link>
-
-            {/* Cloche notifications (icône cloche, pas de bouton rond) */}
+            {/* Cloche notifications */}
             <div className="notif-container" ref={notifRef}>
               <button
                 className={`bell-btn ${showNotif ? 'active' : ''} ${unreadTotal > 0 ? 'ringing' : ''}`}
-                onClick={() => setShowNotif(s => !s)}
+                onClick={() => {
+                  setShowNotif(s => !s);
+                  setShowSettings(false);
+                  setShowProfileMenu(false);
+                }}
                 title="Notifications"
                 aria-label="Notifications"
               >
@@ -183,16 +189,6 @@ const AdminLayout = () => {
                       <span className="count">{pendingContribCount}</span>
                     </div>
                     <Link className="panel-link" to="/admin/contributions" onClick={() => setShowNotif(false)}>
-                      Gérer <FaChevronRight />
-                    </Link>
-                  </div>
-
-                  <div className="panel-section">
-                    <div className="panel-title">
-                      Signalements ouverts
-                      <span className="count warn">{openReportsCount}</span>
-                    </div>
-                    <Link className="panel-link" to="/admin/signalements" onClick={() => setShowNotif(false)}>
                       Gérer <FaChevronRight />
                     </Link>
                   </div>
@@ -230,11 +226,15 @@ const AdminLayout = () => {
               )}
             </div>
 
-            {/* Paramètres (3 points) séparés du profil */}
+            {/* Paramètres (3 points) */}
             <div className="settings-container" ref={settingsRef}>
               <button
                 className={`ellipsis-btn ${showSettings ? 'active' : ''}`}
-                onClick={() => setShowSettings(s => !s)}
+                onClick={() => {
+                  setShowSettings(s => !s);
+                  setShowNotif(false);
+                  setShowProfileMenu(false);
+                }}
                 title="Paramètres"
                 aria-label="Paramètres"
               >
@@ -256,12 +256,55 @@ const AdminLayout = () => {
               )}
             </div>
 
-            {/* Profil (affichage simple) */}
-            <div className="admin-profile">
-              <div className="admin-avatar">
-                {user?.username ? user.username.charAt(0).toUpperCase() : <FaUser />}
-              </div>
-              <span className="admin-name">{user?.username || 'Admin'}</span>
+            {/* Profil */}
+            <div className="admin-profile" ref={profileToggleRef}>
+              <button
+                className={`user-profile-toggle ${showProfileMenu ? 'active' : ''}`}
+                onClick={() => {
+                  setShowProfileMenu(!showProfileMenu);
+                  setShowSettings(false);
+                  setShowNotif(false);
+                }}
+              >
+                <div className="user-avatar">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="avatar" />
+                  ) : (
+                    <span>
+                      {user?.username?.charAt(0).toUpperCase() || <FaUser />}
+                    </span>
+                  )}
+                </div>
+                <span className="user-name">{user?.username || 'Admin'}</span>
+                <FaChevronDown className="toggle-arrow" />
+              </button>
+
+              {showProfileMenu && (
+                <div className="user-menu-panel profile-only">
+                  <div className="user-profile-summary">
+                    <div className="user-avatar medium">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="avatar" />
+                      ) : (
+                        <span>{user?.username?.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="user-details">
+                      <h4>{user?.username || 'Admin'}</h4>
+                      <p>{user?.email || ''}</p>
+                    </div>
+                  </div>
+                  <div className="menu-separator"></div>
+                  <Link
+                    to="/profil"
+                    className="menu-item"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    <FaUser className="item-icon" /> Mon profil
+                  </Link>
+                  <div className="menu-separator"></div>
+                </div>
+              )}
             </div>
 
             <button onClick={handleLogout} className="btn-logout-icon" title="Déconnexion">

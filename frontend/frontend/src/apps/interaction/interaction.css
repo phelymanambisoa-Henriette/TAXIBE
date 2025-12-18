@@ -1,0 +1,59 @@
+.interaction-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+}
+
+.interaction-content {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.commentaire-section {
+  flex: 1.5;
+  background: var(--color-light);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.commentaire-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.commentaire-section li {
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+
+.comment-form {
+  margin-top: 10px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 8px;
+}
+
+.right-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contribution-form,
+.historique-section {
+  background: var(--color-light);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: var(--shadow-light);
+}
+
+.info-message {
+  color: #777;
+  text-align: center;
+}

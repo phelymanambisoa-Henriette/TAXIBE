@@ -1,18 +1,23 @@
+// components/layout/ProtectedRoute.jsx
 import React from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const ProtectedRoute = () => {
-  const { isAuthenticated, authLoading } = useAuth();
-  const location = useLocation();
+const ProtectedRoute = ({ adminOnly = false }) => {
+  const { user, isAdmin } = useAuth();
 
-  if (authLoading) {
-    return <div style={{ padding: 50, textAlign: 'center' }}>Chargement...</div>;
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
-  if (!isAuthenticated) {
-    // Redirige vers login en mémorisant d'où on vient
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // ✅ Si c'est une route admin et que l'utilisateur n'est pas admin
+  if (adminOnly && !isAdmin()) {
+    return <Navigate to="/home" replace />;
+  }
+
+  // ✅ Si c'est un admin sur une route normale, rediriger vers admin
+  if (!adminOnly && isAdmin()) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <Outlet />;

@@ -153,6 +153,13 @@ const AdminBusList = () => {
             <span className="stat-label">Inactifs</span>
           </div>
         </div>
+        <div className="stat-card">
+          <div className="stat-icon maintenance"><FaTimesCircle /></div>
+          <div className="stat-info">
+            <span className="stat-value">{stats.maintenance}</span>
+            <span className="stat-label">Maintenance</span>
+          </div>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -225,7 +232,7 @@ const AdminBusList = () => {
                     </td>
                     <td className="tarif-cell">
                       {bus.frais != null ? (
-                        <span className="tarif">{bus.frais} Ar</span>
+                        <span className="tarif">{bus.frais.toLocaleString()} Ar</span>
                       ) : '-'}
                     </td>
                     <td className="status-cell">
@@ -233,31 +240,33 @@ const AdminBusList = () => {
                     </td>
                     <td className="arrets-cell">
                       <span className="arrets-count">
-                        {bus.trajetCount ?? bus.trajets?.length ?? '-'} trajets
+                        {bus.arrets_count || bus.arrets?.length || '0'} arrêts
                       </span>
                     </td>
                     <td className="actions-cell">
-                      <button
-                        className="btn-icon view"
-                        onClick={() => navigate(`/bus/${bus.id}`)}
-                        title="Voir détails"
-                      >
-                        <FaEye />
-                      </button>
-                      <button
-                        className="btn-icon edit"
-                        onClick={() => navigate(`/admin/bus/${bus.id}`)}
-                        title="Modifier"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn-icon delete"
-                        onClick={() => handleDelete(bus.id, bus.numeroBus || bus.numero)}
-                        title="Supprimer"
-                      >
-                        <FaTrash />
-                      </button>
+                      <div className="actions-container">
+                        <button
+                          className="btn-icon view"
+                          onClick={() => navigate(`/bus/${bus.id}`)}
+                          title="Voir détails"
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="btn-icon edit"
+                          onClick={() => navigate(`/admin/bus/edit/${bus.id}`)}
+                          title="Modifier"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="btn-icon delete"
+                          onClick={() => handleDelete(bus.id, bus.numeroBus || bus.numero)}
+                          title="Supprimer"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
